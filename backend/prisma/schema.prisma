@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  CUSTOMER
+  TECHNICIAN
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+enum BookingStatus {
+  REQUESTED
+  ACCEPTED
+  DECLINED
+  PAID
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String     @db.VarChar(255)
+  name      String     @db.VarChar(150)
+  phone     String?    @db.VarChar(30)
+  location  String?    @db.VarChar(255)
+  role      Role       @default(CUSTOMER)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  technicianProfile TechnicianProfile?
+  customerProfile   CustomerProfile?
+  wallet            Wallet?
+  notifications     Notification[]
+
+  providedServices   Service[]   @relation("TechnicianServices")
+  customerBookings   Booking[]   @relation("CustomerBookings")
+  technicianBookings Booking[]   @relation("TechnicianBookings")
+  customerReviews    Review[]    @relation("CustomerReviews")
+  technicianReviews  Review[]    @relation("TechnicianReviews")
+
+  @@index([role])
+  @@index([status])
+  @@index([role, status])
+  @@map("users")
+}
+
+model TechnicianProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  bio             String?  @db.Text
+  experienceYears Int?
+  skills          String[]
+  baseHourlyRate  Float?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("technician_profiles")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  services Service[]
+
+  @@index([slug])
+  @@map("categories")
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  technicianId String
+  categoryId   String
+  title        String   @db.VarChar(200)
+  description  String?  @db.Text
+  price        Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  technician User     @relation("TechnicianServices", fields: [technicianId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  bookings Booking[]
+
+  @@index([technicianId])
+  @@index([categoryId])
+  @@index([technicianId, categoryId])
+  @@index([price])
+  @@map("services")
+}
+
+model Booking {
+  id           String        @id @default(uuid())
+  customerId   String
+  technicianId String
+  serviceId    String
+  scheduledAt  DateTime
+  timeSlot     String?       @db.VarChar(50)
+  status       BookingStatus @default(REQUESTED)
+  totalAmount  Float
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  customer   User    @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: Cascade)
+  technician User    @relation("TechnicianBookings", fields: [technicianId], references: [id], onDelete: Cascade)
+  service    Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  payment Payment?
+  review  Review?
+
+  @@index([customerId])
+  @@index([technicianId])
+  @@index([serviceId])
+  @@index([status])
+  @@index([customerId, status])
+  @@index([technicianId, status])
+  @@index([createdAt])
+  @@map("bookings")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  bookingId     String        @unique
+  transactionId String        @unique @db.VarChar(255)
+  amount        Float
+  provider      String        @default("STRIPE") @db.VarChar(50)
+  status        PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([transactionId])
+  @@map("payments")
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  bookingId    String   @unique
+  customerId   String
+  technicianId String
+  rating       Int
+  comment      String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  booking    Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customer   User    @relation("CustomerReviews", fields: [customerId], references: [id], onDelete: Cascade)
+  technician User    @relation("TechnicianReviews", fields: [technicianId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([technicianId])
+  @@index([rating])
+  @@index([technicianId, rating])
+  @@map("reviews")
+}
+
+model CustomerProfile {
+  id               String  @id @default(uuid())
+  userId           String  @unique
+  bio              String? @db.Text
+  avatar           String? @db.VarChar(500)
+  emergencyContact String? @db.VarChar(255)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_profiles")
+}
+
+model Wallet {
+  id          String  @id @default(uuid())
+  userId      String  @unique
+  balance     Float   @default(0)
+  totalEarned Float   @default(0)
+  totalSpent  Float   @default(0)
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id          String        @id @default(uuid())
+  walletId    String
+  type        String        @db.VarChar(20)
+  amount      Float
+  description String        @db.VarChar(255)
+  status      PaymentStatus @default(COMPLETED)
+  createdAt   DateTime      @default(now())
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@map("wallet_transactions")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String   @db.VarChar(255)
+  message   String   @db.Text
+  type      String   @db.VarChar(20)
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, read])
+  @@map("notifications")
+}
