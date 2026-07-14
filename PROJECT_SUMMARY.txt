@@ -3,20 +3,20 @@
 ================================================================================
 
 PROJECT NAME
-    FixItNow
+    FixItNow - Trusted Home Service Platform
 
 DESCRIPTION
-    FixItNow is a full-stack home services marketplace platform that connects
-    customers needing home services (plumbing, electrical, cleaning, painting)
-    with verified technicians. The platform supports service browsing, booking
-    management, secure Stripe payments, and a review system.
+    FixItNow is a premium full-stack home services marketplace platform that
+    connects customers needing home services with verified, trusted technicians.
+    The platform features a SaaS-style UI inspired by Airbnb, Stripe, and
+    Linear, with glassmorphism, smooth animations, and full dark mode support.
 
 PROJECT PURPOSE
     To provide a seamless marketplace experience where customers can discover
-    local technicians, book services, make secure payments, and leave reviews.
-    Technicians can manage their profiles, accept or decline booking requests,
-    and track their earnings. Administrators can monitor platform activity,
-    manage users, and view analytics.
+    local technicians, book services, make secure payments via Stripe, and
+    leave reviews. Technicians can manage their profiles, accept or decline
+    booking requests, track earnings, and view analytics. Administrators can
+    monitor platform activity, manage users, and view comprehensive reports.
 
 ================================================================================
                            TECH STACK
@@ -31,13 +31,19 @@ PROJECT PURPOSE
         - Auth:          JSON Web Tokens (JWT) + bcryptjs
         - Payments:      Stripe API
         - Validation:    Zod v4
+        - Security:      Helmet, Morgan, Cookie-Parser, Rate-Limiting
 
     Frontend:
         - Framework:     React v19
         - Language:      TypeScript v6
         - Build Tool:    Vite v8
         - Styling:       TailwindCSS v4
+        - UI Library:    Radix UI (shadcn pattern)
+        - Animations:    Framer Motion
+        - Icons:         Lucide React
         - Routing:       React Router v7
+        - Forms:         React Hook Form + Zod
+        - Server State:  TanStack Query
         - HTTP Client:   Axios
         - Payments:      Stripe Elements (@stripe/react-stripe-js)
 
@@ -49,69 +55,120 @@ PROJECT PURPOSE
     |
     |-- package.json              Root convenience scripts (no dependencies)
     |-- .gitignore                Git ignore rules
-    |
-    |-- frontend/                 Frontend application (React + Vite)
-    |   |-- package.json          Frontend dependencies and scripts
-    |   |-- tsconfig.json         TypeScript project references
-    |   |-- tsconfig.app.json     App TypeScript config
-    |   |-- tsconfig.node.json    Node (Vite) TypeScript config
-    |   |-- vite.config.ts        Vite configuration with API proxy
-    |   |-- index.html            HTML entry point
-    |   |-- .env                  Frontend environment variables
-    |   |-- .gitignore            Frontend-specific git ignores
-    |   |-- public/               Static assets
-    |   |-- src/
-    |       |-- main.tsx          Application entry point
-    |       |-- App.tsx           Router configuration
-    |       |-- index.css         Global styles (TailwindCSS + custom theme)
-    |       |-- types/            TypeScript type definitions
-    |       |-- context/          React context providers (Auth)
-    |       |-- hooks/            Custom hooks (useFetch, useMutation, api)
-    |       |-- components/       Reusable UI components (Navbar, Footer, etc.)
-    |       |-- pages/            Page components (Home, Login, Register, etc.)
+    |-- PROJECT_SUMMARY.txt       This file
     |
     |-- backend/                  Backend application (Express + Prisma)
-        |-- package.json          Backend dependencies and scripts
-        |-- tsconfig.json         TypeScript configuration
-        |-- prisma.config.ts      Prisma configuration
-        |-- .env                  Backend environment variables
-        |-- prisma/
-        |   |-- schema.prisma     Database schema (Prisma)
-        |   |-- seed.ts           Database seed script
+    |   |-- package.json          Backend dependencies and scripts
+    |   |-- tsconfig.json         TypeScript configuration
+    |   |-- prisma.config.ts      Prisma configuration
+    |   |-- prisma/
+    |   |   |-- schema.prisma     Database schema (Prisma)
+    |   |   |-- seed.ts           Database seed script
+    |   |-- src/
+    |       |-- server.ts         Server entry point
+    |       |-- app.ts            Express app setup (CORS, middleware, routes)
+    |       |-- config/           Configuration (db.ts, stripe.ts)
+    |       |-- controllers/      Route handlers (9 controllers)
+    |       |-- middlewares/      Auth, validation, error handling
+    |       |-- routes/           API route definitions (10 route files)
+    |       |-- schemas/          Zod validation schemas
+    |
+    |-- frontend/                 Frontend application (React + Vite)
+        |-- package.json          Frontend dependencies and scripts
+        |-- tsconfig.json         TypeScript project references
+        |-- tsconfig.app.json     App TypeScript config
+        |-- tsconfig.node.json    Node (Vite) TypeScript config
+        |-- vite.config.ts        Vite configuration with API proxy
+        |-- index.html            HTML entry point
+        |-- public/               Static assets (favicon, icons)
         |-- src/
-            |-- server.ts         Server entry point
-            |-- app.ts            Express app setup (CORS, middleware, routes)
-            |-- config/           Configuration (db.ts, stripe.ts)
-            |-- controllers/      Route handlers
-            |-- middlewares/       Auth, validation, error handling
-            |-- routes/           API route definitions
-            |-- schemas/          Zod validation schemas
+            |-- main.tsx          Application entry point (providers)
+            |-- App.tsx           Router configuration (30+ routes)
+            |-- index.css         Global styles (TailwindCSS + dark mode)
+            |-- lib/              Utilities (utils.ts, api.ts, queryClient.ts)
+            |-- types/            TypeScript type definitions
+            |-- mock/             Mock data for static content
+            |-- context/          React context (Auth, Theme)
+            |-- hooks/            Custom hooks (useTheme, useApi with 30+ hooks)
+            |-- components/
+            |   |-- ui/           22 shadcn-style UI components
+            |   |-- layout/       Navbar, Footer, Sidebar, DashboardLayout
+            |   |-- shared/       13 reusable shared components
+            |-- pages/
+                |-- auth/         Login, Register, ForgotPassword, OTP, Reset
+                |-- customer/     Customer Dashboard
+                |-- technician/   Technician Dashboard
+                |-- admin/        Admin Dashboard + 7 management pages
+                |-- profile/      Profile management
+                |-- notifications/ Notification center
+                |-- extra/        About, Contact, Blog, Careers, 404, etc.
+                |-- Landing, Services, TechnicianProfile, Booking, Payment, Wallet
 
 ================================================================================
                       FRONTEND OVERVIEW
 ================================================================================
 
-    Pages:
-        /                   Home - Service browsing with search and filters
-        /login              Customer/Technician login
-        /register           Account registration (Customer or Technician)
-        /customer           Customer dashboard (bookings, reviews)
-        /technician         Technician dashboard (earnings, booking management)
-        /checkout/:bookingId  Stripe payment checkout
-        /unauthorized       Unauthorized access page
+    80 source files across 35 pages with premium SaaS-style UI.
 
-    Components:
-        Navbar              Responsive navigation bar with user menu
-        Footer              Site-wide footer with links
-        ProtectedRoute      Auth + role-based route guard
+    UI Components (22 shadcn-style):
+        Button, Card, Input, Textarea, Badge, Skeleton, Avatar, Tabs,
+        Select, Tooltip, Separator, Progress, Checkbox, Switch, Dialog,
+        Dropdown Menu, Accordion, Scroll Area, Alert Dialog, Slider,
+        Radio Group, Toast
 
-    Context:
-        AuthContext          Manages user state, token persistence, login/logout
+    Shared Components (13):
+        ServiceCard, TechnicianCard, ReviewCard, StatCard, StarRating,
+        BookingTimeline, SearchBar, PageHeader, EmptyState, LoadingSpinner,
+        AnimatedCard, FloatingButton, CookieConsent
 
-    Hooks:
-        useFetch<T>          Generic GET request hook with loading/error states
-        useMutation<T,V>     Generic mutation hook (POST/PUT/PATCH/DELETE)
-        api                  Axios instance with auto-attached auth token
+    Layout (4):
+        Navbar (glassmorphism, responsive, theme toggle, notification bell)
+        Footer (4-column, newsletter, social links)
+        Sidebar (role-based, collapsible)
+        DashboardLayout (sidebar + main content)
+
+    Pages (35):
+        /                               Landing (Hero, Stats, Featured, FAQ, CTA)
+        /services                       Service browsing with filters and search
+        /services/:technicianId         Technician profile with tabs
+        /booking/:serviceId             5-step booking flow
+        /payment/:bookingId             Multi-method payment page
+        /wallet                         Wallet management
+        /login                          Login with social UI
+        /register                       Registration with role selector
+        /forgot-password                Password reset request
+        /verify-otp                     OTP verification
+        /reset-password                 New password form
+        /customer                       Customer dashboard
+        /technician                     Technician dashboard
+        /admin                          Admin dashboard
+        /admin/users                    User management
+        /admin/technicians              Technician management
+        /admin/bookings                 Booking management
+        /admin/categories               Category management
+        /admin/payments                 Payment monitoring
+        /admin/reviews                  Review moderation
+        /admin/reports                  Analytics reports
+        /profile                        Profile management (4 tabs)
+        /notifications                  Notification center
+        /about                          About page
+        /contact                        Contact form
+        /blog                           Blog listing
+        /careers                        Career page
+        /privacy                        Privacy policy
+        /terms                          Terms of service
+        /404                            Not found page
+        /maintenance                    Maintenance mode
+
+    Features:
+        - Dark/Light mode with ThemeContext and localStorage persistence
+        - Framer Motion animations (fade, slide, scale, hover, page transitions)
+        - React Hook Form + Zod validation on all forms
+        - TanStack Query for server state management
+        - Loading skeletons, error states, empty states
+        - Responsive design (mobile, tablet, desktop)
+        - Micro-interactions and hover effects
+        - Glassmorphism and gradient styling
 
 ================================================================================
                       BACKEND OVERVIEW
@@ -122,20 +179,25 @@ PROJECT PURPOSE
         - Modular structure: controllers, routes, middlewares, schemas
         - Prisma ORM for database access
         - JWT-based authentication with role-based access control
+        - Security: Helmet, CORS, Rate-Limiting, Cookie-Parser
 
-    Middleware:
+    Middleware (5):
         authenticateToken     Validates JWT and attaches user to request
         requireRole(roles[])  Restricts access to specified user roles
         validate(schema)      Zod schema validation for request bodies
         errorHandler          Global error handling with structured responses
+        rateLimit             API rate limiting (100 requests per 15 minutes)
 
-    Controllers:
+    Controllers (9):
         authController        Registration, login, profile retrieval
+        profileController     Profile update, password change, technician profile
         serviceController     Service CRUD, search with filters
-        bookingController     Booking creation, status management
-        paymentController     Stripe PaymentIntent creation, webhook handling
-        reviewController      Review creation for completed bookings
+        bookingController     Booking creation, status state machine
+        paymentController     Stripe PaymentIntent, webhook handling
+        reviewController      Review creation, technician reviews
         adminController       User management, stats, categories
+        walletController      Balance management, transactions
+        notificationController Notification CRUD, read tracking
 
 ================================================================================
                           DATABASE
@@ -143,25 +205,33 @@ PROJECT PURPOSE
 
     Database: PostgreSQL via Prisma ORM
 
-    Models:
-        User              User accounts (customers, technicians, admins)
-        TechnicianProfile Extended profile for technicians
-        Category          Service categories (Plumbing, Electrical, etc.)
-        Service           Services offered by technicians
-        Booking           Service bookings between customers and technicians
-        Payment           Stripe payment records
-        Review            Customer reviews for completed bookings
+    Models (11):
+        User               User accounts (customers, technicians, admins)
+        TechnicianProfile  Extended profile for technicians (skills, rate)
+        CustomerProfile    Extended profile for customers (bio, emergency)
+        Category           Service categories (Plumbing, Electrical, etc.)
+        Service            Services offered by technicians
+        Booking            Service bookings with status state machine
+        Payment            Stripe payment records
+        Review             Customer reviews for completed bookings
+        Wallet             User wallet balance and totals
+        WalletTransaction  Wallet transaction audit trail
+        Notification       User notifications with read tracking
 
-    Enums:
-        Role              CUSTOMER, TECHNICIAN, ADMIN
-        UserStatus        ACTIVE, BANNED
-        BookingStatus     REQUESTED, ACCEPTED, DECLINED, PAID, IN_PROGRESS,
-                          COMPLETED, CANCELLED
-        PaymentStatus     PENDING, COMPLETED, FAILED
+    Enums (4):
+        Role               CUSTOMER, TECHNICIAN, ADMIN
+        UserStatus         ACTIVE, BANNED
+        BookingStatus      REQUESTED, ACCEPTED, DECLINED, PAID,
+                           IN_PROGRESS, COMPLETED, CANCELLED
+        PaymentStatus      PENDING, COMPLETED, FAILED
 
     Seeded Data:
-        - 4 categories: Plumbing, Electrical, Cleaning, Painting
-        - 1 admin user: admin@fixitnow.com / AdminSecure2026!
+        - 8 categories: Plumbing, Electrical, Cleaning, Painting,
+          HVAC, Carpentry, Landscaping, Pest Control
+        - 1 admin: admin@fixitnow.com / AdminSecure2026!
+        - 3 customers: customer1-3@test.com / Password123!
+        - 3 technicians: tech1-3@test.com / Password123!
+        - Services, bookings, reviews, notifications, wallets
 
 ================================================================================
                       AUTHENTICATION
@@ -173,9 +243,10 @@ PROJECT PURPOSE
         1. User registers or logs in via /api/auth/register or /api/auth/login
         2. Server validates credentials, generates JWT (7-day expiry)
         3. Token returned to client and stored in localStorage
-        4. Client attaches token as Bearer header on all authenticated requests
+        4. Axios interceptor attaches Bearer token to all requests
         5. Server middleware validates token and attaches user info to request
         6. Role-based middleware restricts access to specific endpoints
+        7. On 401 response, interceptor clears token and redirects to /login
 
     Password Security:
         - bcryptjs with 12 salt rounds
@@ -187,43 +258,91 @@ PROJECT PURPOSE
         - ProtectedRoute component guards routes by auth status and role
 
 ================================================================================
-                       API ENDPOINTS
+                       API ENDPOINTS (25)
 ================================================================================
 
     Health Check:
-        GET /api/health                          (Public)
+        GET /api/health                              (Public)
 
-    Authentication:
-        POST   /api/auth/register                (Public)
-        POST   /api/auth/login                   (Public)
-        GET    /api/auth/me                      (Authenticated)
+    Authentication (3):
+        POST   /api/auth/register                    (Public)
+        POST   /api/auth/login                       (Public)
+        GET    /api/auth/me                          (Authenticated)
 
-    Services:
-        GET    /api/services                     (Public - search, filter by category/rating)
-        GET    /api/services/categories          (Public)
-        GET    /api/services/:id                 (Public - service detail with reviews)
-        GET    /api/services/technician/:id      (Public - technician's services)
-        POST   /api/services                     (Technician only - create service)
+    Profile (4):
+        GET    /api/profile/me                       (Authenticated)
+        PUT    /api/profile/me                       (Authenticated)
+        PUT    /api/profile/change-password          (Authenticated)
+        PUT    /api/profile/technician               (Technician only)
 
-    Bookings:
-        POST   /api/bookings                     (Customer only - create booking)
-        PATCH  /api/bookings/:id/status          (Customer/Technician - update status)
-        GET    /api/bookings/customer            (Customer only - list bookings)
-        GET    /api/bookings/technician          (Technician only - list bookings)
+    Services (5):
+        GET    /api/services                         (Public - search, filter)
+        GET    /api/services/categories              (Public)
+        GET    /api/services/:id                     (Public - detail)
+        GET    /api/services/technician/:id          (Public)
+        POST   /api/services                         (Technician only)
 
-    Payments:
-        POST   /api/payments/create              (Customer only - create Stripe PaymentIntent)
-        POST   /api/payments/webhook             (Public - Stripe webhook callback)
+    Bookings (4):
+        POST   /api/bookings                         (Customer only)
+        PATCH  /api/bookings/:id/status              (Customer/Technician)
+        GET    /api/bookings/customer                (Customer only)
+        GET    /api/bookings/technician              (Technician only)
 
-    Reviews:
-        POST   /api/reviews                      (Customer only - create review)
+    Payments (2):
+        POST   /api/payments/create                  (Customer only)
+        POST   /api/payments/webhook                 (Public - Stripe)
 
-    Admin:
-        GET    /api/admin/users                  (Admin only)
-        PATCH  /api/admin/users/:id/ban          (Admin only - ban/unban user)
-        GET    /api/admin/bookings               (Admin only)
-        GET    /api/admin/stats                  (Admin only - dashboard stats)
-        GET    /api/admin/categories             (Admin only)
+    Reviews (2):
+        POST   /api/reviews                          (Customer only)
+        GET    /api/reviews/technician/:id           (Public)
+
+    Wallet (3):
+        GET    /api/wallet                           (Authenticated)
+        POST   /api/wallet/add                       (Authenticated)
+        GET    /api/wallet/transactions              (Authenticated)
+
+    Notifications (3):
+        GET    /api/notifications                    (Authenticated)
+        PATCH  /api/notifications/:id/read           (Authenticated)
+        PATCH  /api/notifications/read-all           (Authenticated)
+
+    Admin (5):
+        GET    /api/admin/stats                      (Admin only)
+        GET    /api/admin/users                      (Admin only)
+        PATCH  /api/admin/users/:id/ban              (Admin only)
+        GET    /api/admin/bookings                   (Admin only)
+        GET    /api/admin/categories                 (Admin only)
+
+================================================================================
+                    FRONTEND-BACKEND INTEGRATION
+================================================================================
+
+    API Service Layer:
+        - Axios instance with /api baseURL
+        - JWT token auto-attachment via request interceptor
+        - 401 response handling with redirect to /login
+        - 15-second timeout
+
+    TanStack Query Hooks (30+):
+        Auth:       useLogin, useRegister, useMe
+        Profile:    useProfile, useUpdateProfile, useChangePassword
+        Services:   useServices, useService, useCategories, useCreateService
+        Bookings:   useCreateBooking, useUpdateBookingStatus,
+                    useCustomerBookings, useTechnicianBookings
+        Payments:   useCreatePayment
+        Reviews:    useCreateReview, useTechnicianReviews
+        Wallet:     useWallet, useAddMoney, useWalletTransactions
+        Notifs:     useNotifications, useMarkNotificationRead,
+                    useMarkAllNotificationsRead
+        Admin:      useAdminStats, useAdminUsers, useAdminBookings,
+                    useAdminBanUser, useAdminCategories
+
+    Data Flow:
+        - All pages use real API hooks (no mock data for dynamic content)
+        - Loading skeletons shown during API calls
+        - Error states with retry options
+        - Cache invalidation after mutations
+        - Optimistic updates where appropriate
 
 ================================================================================
                      INSTALLATION GUIDE
@@ -240,10 +359,12 @@ PROJECT PURPOSE
              cd frontend && npm install
         3. Install backend dependencies:
              cd backend && npm install
-        4. Configure environment variables (see Environment Variables section)
+        4. Configure environment variables (see Environment Variables)
         5. Set up the database:
              cd backend && npx prisma db push
-        6. Seed the database:
+        6. Generate Prisma client:
+             cd backend && npx prisma generate
+        7. Seed the database:
              cd backend && npm run db:seed
 
 ================================================================================
@@ -253,6 +374,9 @@ PROJECT PURPOSE
     Development:
         From root:     npm run dev:frontend
         From frontend: cd frontend && npm run dev
+
+    Production Build:
+        cd frontend && npm run build
 
     The frontend runs on http://localhost:5173 by default.
     API requests are proxied to http://localhost:5000 via Vite config.
@@ -276,46 +400,72 @@ PROJECT PURPOSE
 ================================================================================
 
     Backend (.env):
-        DATABASE_URL          PostgreSQL connection string
-                             Default: postgresql://postgres:postgres@localhost:5432/fixitnow?schema=public
-        JWT_SECRET            Secret key for JWT signing
-        STRIPE_SECRET_KEY     Stripe secret API key
-        STRIPE_WEBHOOK_SECRET Stripe webhook endpoint signing secret
-        PORT                  Server port (default: 5000)
+        DATABASE_URL            PostgreSQL connection string
+        JWT_SECRET              Secret key for JWT signing (7-day expiry)
+        STRIPE_SECRET_KEY       Stripe secret API key
+        STRIPE_WEBHOOK_SECRET   Stripe webhook endpoint signing secret
+        FRONTEND_URL            Frontend origin for CORS (default: localhost:5173)
+        PORT                    Server port (default: 5000)
 
     Frontend (.env):
-        VITE_STRIPE_PUBLISHABLE_KEY   Stripe publishable key for client-side
+        VITE_STRIPE_PUBLISHABLE_KEY  Stripe publishable key for client-side
 
 ================================================================================
-                         DATA FLOW
+                     SECURITY
+================================================================================
+
+    - Helmet: HTTP security headers (XSS protection, content type sniffing)
+    - CORS: Configured for frontend origin with credentials
+    - Rate Limiting: 100 requests per 15 minutes per IP
+    - JWT: 7-day expiry with Bearer token authentication
+    - Password Hashing: bcryptjs with 12 salt rounds
+    - Input Validation: Zod schemas on all mutation endpoints
+    - Role-Based Access: CUSTOMER, TECHNICIAN, ADMIN role restrictions
+    - Booking State Machine: Strict status transition validation
+    - Webhook Verification: Stripe signature verification for payments
+
+================================================================================
+                     DATA FLOW
 ================================================================================
 
     1. BROWSE SERVICES:
-       Home page -> GET /api/services -> Display service cards with ratings
+       Landing/Services page -> GET /api/services -> ServiceCard grid
+       Filters: search, category, price, rating -> Query params
 
     2. BOOK SERVICE:
-       Customer clicks "Book" -> POST /api/bookings -> Status: REQUESTED
-       -> Technician sees request in dashboard
+       TechnicianProfile -> Book button -> /booking/:serviceId
+       5-step flow: Service -> Date -> Time -> Address -> Summary
+       -> POST /api/bookings -> Status: REQUESTED
 
     3. ACCEPT/DECLINE:
-       Technician accepts -> PATCH /api/bookings/:id/status -> Status: ACCEPTED
-       -> Customer sees accepted booking
+       Technician dashboard -> Pending Requests tab
+       Accept -> PATCH /api/bookings/:id/status -> Status: ACCEPTED
+       Decline -> Status: DECLINED
 
     4. PAYMENT:
-       Customer goes to checkout -> POST /api/payments/create
-       -> Stripe PaymentElement renders -> Payment confirmed
-       -> Webhook: Status -> PAID
+       Customer dashboard -> Accepted booking -> /payment/:bookingId
+       Select method (Stripe/COD/Wallet) -> POST /api/payments/create
+       -> Stripe PaymentElement -> Confirm -> Webhook: Status -> PAID
 
     5. SERVICE DELIVERY:
        Technician marks in-progress -> Status: IN_PROGRESS
        Technician completes -> Status: COMPLETED
 
     6. REVIEW:
-       Customer leaves review -> POST /api/reviews -> Rating + comment
-       -> Displayed on service detail page
+       Customer -> Completed booking -> Leave Review form
+       -> POST /api/reviews -> Rating + comment
+       -> Displayed on technician profile
+
+    7. WALLET:
+       Add money -> POST /api/wallet/add -> Balance updated
+       Pay from wallet -> Deduct balance, create transaction
+
+    8. NOTIFICATIONS:
+       Booking events -> Create notification -> User sees in bell icon
+       Mark read -> PATCH /api/notifications/:id/read
 
 ================================================================================
-                    FUTURE IMPROVEMENTS
+                     FUTURE IMPROVEMENTS
 ================================================================================
 
     - Real-time notifications via WebSockets
@@ -325,11 +475,18 @@ PROJECT PURPOSE
     - Multi-language support (i18n)
     - Mobile app (React Native)
     - Email notifications for booking status changes
-    - Advanced admin analytics dashboard
-    - Service area pricing (distance-based pricing)
-    - Coupon and discount system
+    - Advanced admin analytics with Chart.js/Recharts
+    - Service area pricing (distance-based)
+    - Coupon and discount system backend
     - Technician verification and certification uploads
     - Dispute resolution system
     - In-app messaging between customers and technicians
+    - SSLCommerz payment gateway integration
+    - Cloudinary image upload integration
+    - Redis caching for frequently accessed data
+    - Elasticsearch for advanced search
+    - CI/CD pipeline with GitHub Actions
+    - Docker containerization
+    - Automated testing (Jest + React Testing Library)
 
 ================================================================================
