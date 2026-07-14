@@ -26,16 +26,16 @@ async function main() {
       create: cat,
     });
     categories[cat.slug] = created.id;
-    console.log(`  Created category: ${cat.name}`);
   }
+  console.log("  Created 8 categories");
 
   // --- Users ---
-  const adminPassword = await bcrypt.hash("AdminSecure2026!", 12);
+  const adminPassword = await bcrypt.hash("admin123", 12);
   const userPassword = await bcrypt.hash("Password123!", 12);
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@fixitnow.com" },
-    update: {},
+    update: { password: adminPassword },
     create: {
       email: "admin@fixitnow.com",
       password: adminPassword,
@@ -44,7 +44,6 @@ async function main() {
       status: "ACTIVE",
     },
   });
-  console.log("  Created admin: admin@fixitnow.com");
 
   // --- Customers ---
   const customerData = [
@@ -69,8 +68,8 @@ async function main() {
       },
     });
     customers.push(user);
-    console.log(`  Created customer: ${c.email}`);
   }
+  console.log("  Created 3 customers");
 
   // --- Technicians ---
   const techData = [
@@ -95,8 +94,8 @@ async function main() {
       },
     });
     technicians.push(user);
-    console.log(`  Created technician: ${t.email}`);
   }
+  console.log("  Created 3 technicians");
 
   // --- Technician Profiles ---
   const techProfileData = [
@@ -112,7 +111,7 @@ async function main() {
       create: tp,
     });
   }
-  console.log("  Created technician profiles");
+  console.log("  Created 3 technician profiles");
 
   // --- Customer Profiles ---
   for (const c of customers) {
@@ -126,7 +125,7 @@ async function main() {
       },
     });
   }
-  console.log("  Created customer profiles");
+  console.log("  Created 3 customer profiles");
 
   // --- Wallets ---
   const allUsers = [admin, ...customers, ...technicians];
@@ -137,12 +136,12 @@ async function main() {
       create: {
         userId: u.id,
         balance: u.role === "ADMIN" ? 0 : 150,
-        totalEarned: u.role === "TECHNICIAN" ? 0 : 0,
-        totalSpent: u.role === "CUSTOMER" ? 150 : 0,
+        totalEarned: 0,
+        totalSpent: 0,
       },
     });
   }
-  console.log("  Created wallets");
+  console.log("  Created 7 wallets");
 
   // --- Services (6 across categories) ---
   const serviceData = [
@@ -156,40 +155,57 @@ async function main() {
 
   const services = [];
   for (const s of serviceData) {
-    const service = await prisma.service.create({ data: s });
-    services.push(service);
+    const existing = await prisma.service.findFirst({
+      where: { title: s.title, technicianId: s.technicianId },
+    });
+    if (existing) {
+      services.push(existing);
+    } else {
+      const service = await prisma.service.create({ data: s });
+      services.push(service);
+    }
   }
   console.log("  Created 6 services");
 
   // --- Bookings ---
   const bookingData = [
-    { customerId: customers[0].id, technicianId: technicians[0].id, serviceId: services[0].id, scheduledAt: new Date("2026-07-20T10:00:00Z"), totalAmount: 120, status: "REQUESTED" },
-    { customerId: customers[1].id, technicianId: technicians[0].id, serviceId: services[1].id, scheduledAt: new Date("2026-07-18T14:00:00Z"), totalAmount: 95, status: "ACCEPTED" },
-    { customerId: customers[2].id, technicianId: technicians[1].id, serviceId: services[2].id, scheduledAt: new Date("2026-07-15T09:00:00Z"), totalAmount: 150, status: "COMPLETED" },
-    { customerId: customers[0].id, technicianId: technicians[1].id, serviceId: services[3].id, scheduledAt: new Date("2026-07-16T11:00:00Z"), totalAmount: 110, status: "IN_PROGRESS" },
-    { customerId: customers[1].id, technicianId: technicians[2].id, serviceId: services[4].id, scheduledAt: new Date("2026-07-14T08:00:00Z"), totalAmount: 200, status: "COMPLETED" },
-    { customerId: customers[2].id, technicianId: technicians[2].id, serviceId: services[5].id, scheduledAt: new Date("2026-07-22T15:00:00Z"), totalAmount: 80, status: "REQUESTED" },
+    { customerId: customers[0].id, technicianId: technicians[0].id, serviceId: services[0].id, scheduledAt: new Date("2026-07-20T10:00:00Z"), totalAmount: 120, status: "REQUESTED" as const },
+    { customerId: customers[1].id, technicianId: technicians[0].id, serviceId: services[1].id, scheduledAt: new Date("2026-07-18T14:00:00Z"), totalAmount: 95, status: "ACCEPTED" as const },
+    { customerId: customers[2].id, technicianId: technicians[1].id, serviceId: services[2].id, scheduledAt: new Date("2026-07-15T09:00:00Z"), totalAmount: 150, status: "COMPLETED" as const },
+    { customerId: customers[0].id, technicianId: technicians[1].id, serviceId: services[3].id, scheduledAt: new Date("2026-07-16T11:00:00Z"), totalAmount: 110, status: "IN_PROGRESS" as const },
+    { customerId: customers[1].id, technicianId: technicians[2].id, serviceId: services[4].id, scheduledAt: new Date("2026-07-14T08:00:00Z"), totalAmount: 200, status: "COMPLETED" as const },
+    { customerId: customers[2].id, technicianId: technicians[2].id, serviceId: services[5].id, scheduledAt: new Date("2026-07-22T15:00:00Z"), totalAmount: 80, status: "REQUESTED" as const },
   ];
 
   const bookings = [];
   for (const b of bookingData) {
-    const booking = await prisma.booking.create({ data: b });
-    bookings.push(booking);
+    const existing = await prisma.booking.findFirst({
+      where: { customerId: b.customerId, serviceId: b.serviceId, scheduledAt: b.scheduledAt },
+    });
+    if (existing) {
+      bookings.push(existing);
+    } else {
+      const booking = await prisma.booking.create({ data: b });
+      bookings.push(booking);
+    }
   }
   console.log("  Created 6 bookings");
 
   // --- Payments for completed/in-progress bookings ---
   for (const b of bookings) {
     if (["COMPLETED", "IN_PROGRESS", "PAID"].includes(b.status)) {
-      await prisma.payment.create({
-        data: {
-          bookingId: b.id,
-          transactionId: `txn_${b.id.slice(0, 8)}`,
-          amount: b.totalAmount,
-          status: "COMPLETED",
-          paidAt: new Date(),
-        },
-      });
+      const existing = await prisma.payment.findUnique({ where: { bookingId: b.id } });
+      if (!existing) {
+        await prisma.payment.create({
+          data: {
+            bookingId: b.id,
+            transactionId: `txn_${b.id.slice(0, 8)}`,
+            amount: b.totalAmount,
+            status: "COMPLETED",
+            paidAt: new Date(),
+          },
+        });
+      }
     }
   }
   console.log("  Created payments for completed/in-progress bookings");
@@ -203,32 +219,40 @@ async function main() {
 
   for (let i = 0; i < completedBookings.length; i++) {
     const b = completedBookings[i];
-    const reviewData = reviewComments[i % reviewComments.length];
-    await prisma.review.create({
-      data: {
-        bookingId: b.id,
-        customerId: b.customerId,
-        technicianId: b.technicianId,
-        rating: reviewData.rating,
-        comment: reviewData.comment,
-      },
-    });
+    const existing = await prisma.review.findUnique({ where: { bookingId: b.id } });
+    if (!existing) {
+      const reviewData = reviewComments[i % reviewComments.length];
+      await prisma.review.create({
+        data: {
+          bookingId: b.id,
+          customerId: b.customerId,
+          technicianId: b.technicianId,
+          rating: reviewData.rating,
+          comment: reviewData.comment,
+        },
+      });
+    }
   }
   console.log("  Created reviews for completed bookings");
 
   // --- Notifications ---
-  const notificationData = [
-    { userId: customers[0].id, title: "Booking Created", message: "Your emergency pipe repair booking has been created.", type: "info" },
-    { userId: customers[0].id, title: "Booking Update", message: "Your AC tune-up is now in progress.", type: "success" },
-    { userId: technicians[0].id, title: "New Booking Request", message: "You have a new drain cleaning booking request.", type: "info" },
-    { userId: technicians[1].id, title: "Booking Completed", message: "Your electrical inspection booking has been marked as completed.", type: "success" },
-    { userId: customers[1].id, title: "Review Reminder", message: "You have a completed booking. Leave a review!", type: "warning" },
-  ];
+  const existingNotifications = await prisma.notification.count();
+  if (existingNotifications === 0) {
+    const notificationData = [
+      { userId: customers[0].id, title: "Booking Created", message: "Your emergency pipe repair booking has been created.", type: "info" },
+      { userId: customers[0].id, title: "Booking Update", message: "Your AC tune-up is now in progress.", type: "success" },
+      { userId: technicians[0].id, title: "New Booking Request", message: "You have a new drain cleaning booking request.", type: "info" },
+      { userId: technicians[1].id, title: "Booking Completed", message: "Your electrical inspection booking has been marked as completed.", type: "success" },
+      { userId: customers[1].id, title: "Review Reminder", message: "You have a completed booking. Leave a review!", type: "warning" },
+    ];
 
-  for (const n of notificationData) {
-    await prisma.notification.create({ data: n });
+    for (const n of notificationData) {
+      await prisma.notification.create({ data: n });
+    }
+    console.log("  Created 5 notifications");
+  } else {
+    console.log("  Notifications already exist, skipping");
   }
-  console.log("  Created notifications");
 
   console.log("Seed completed successfully!");
 }

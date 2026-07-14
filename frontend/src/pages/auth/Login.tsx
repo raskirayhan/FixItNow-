@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useThemeContext } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
-import { useLogin } from "@/hooks/useApi";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/toast";
 
 const loginSchema = z.object({
@@ -41,8 +41,9 @@ export default function Login() {
   const { isDark } = useThemeContext();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const loginMutation = useLogin();
+  const { login } = useAuth();
   const { error: toastError } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -52,22 +53,20 @@ export default function Login() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginForm) => {
-    loginMutation.mutate(
-      { email: data.email, password: data.password },
-      {
-        onSuccess: (res) => {
-          const token = res.data?.token;
-          const user = res.data?.user;
-          if (token) localStorage.setItem("fixitnow_token", token);
-          if (user) localStorage.setItem("fixitnow_user", JSON.stringify(user));
-          navigate("/");
-        },
-        onError: (err: any) => {
-          toastError("Login Failed", err?.response?.data?.message || "Invalid credentials. Please try again.");
-        },
+  const onSubmit = async (data: LoginForm) => {
+    setIsSubmitting(true);
+    try {
+      const success = await login(data.email, data.password);
+      if (success) {
+        navigate("/");
+      } else {
+        toastError("Login Failed", "Invalid credentials. Please try again.");
       }
-    );
+    } catch (err: any) {
+      toastError("Login Failed", err?.response?.data?.message || "Invalid credentials. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -207,8 +206,8 @@ export default function Login() {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full" size="lg" disabled={loginMutation.isPending}>
-              {loginMutation.isPending ? (
+            <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+              {isSubmitting ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   Signing in...

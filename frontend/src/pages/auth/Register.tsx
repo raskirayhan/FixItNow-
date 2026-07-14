@@ -25,7 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useThemeContext } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
-import { useRegister } from "@/hooks/useApi";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/toast";
 
 const registerSchema = z
@@ -74,8 +74,9 @@ export default function Register() {
   const [currentStep, setCurrentStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const registerMutation = useRegister();
+  const { register: registerUser } = useAuth();
   const { error: toastError } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -109,29 +110,27 @@ export default function Register() {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
-  const onSubmit = (data: RegisterForm) => {
-    registerMutation.mutate(
-      {
+  const onSubmit = async (data: RegisterForm) => {
+    setIsSubmitting(true);
+    try {
+      const success = await registerUser({
         email: data.email,
         password: data.password,
         name: data.name,
         phone: data.phone,
         location: data.location,
         role: data.role,
-      },
-      {
-        onSuccess: (res) => {
-          const token = res.data?.token;
-          const user = res.data?.user;
-          if (token) localStorage.setItem("fixitnow_token", token);
-          if (user) localStorage.setItem("fixitnow_user", JSON.stringify(user));
-          navigate("/");
-        },
-        onError: (err: any) => {
-          toastError("Registration Failed", err?.response?.data?.message || "Could not create account. Please try again.");
-        },
+      });
+      if (success) {
+        navigate("/");
+      } else {
+        toastError("Registration Failed", "Could not create account. Please try again.");
       }
-    );
+    } catch (err: any) {
+      toastError("Registration Failed", err?.response?.data?.message || "Could not create account. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -531,8 +530,8 @@ export default function Register() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
-                <Button type="submit" className="flex-1" disabled={registerMutation.isPending}>
-                  {registerMutation.isPending ? (
+                <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                  {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       Creating...

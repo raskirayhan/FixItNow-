@@ -11,12 +11,26 @@ export const getNotifications = async (req: Request, res: Response, next: NextFu
     const unreadCount = await prisma.notification.count({
       where: { userId: req.user!.userId, read: false },
     });
-    res.status(200).json({ success: true, data: { notifications, unreadCount } });
+    res.status(200).json({ success: true, message: "Notifications retrieved", data: { notifications, unreadCount } });
   } catch (error) { next(error); }
 };
 
 export const markAsRead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const notification = await prisma.notification.findUnique({
+      where: { id: req.params.id as string },
+    });
+
+    if (!notification) {
+      res.status(404).json({ success: false, message: "Notification not found", errorDetails: {} });
+      return;
+    }
+
+    if (notification.userId !== req.user!.userId) {
+      res.status(403).json({ success: false, message: "Access denied", errorDetails: {} });
+      return;
+    }
+
     await prisma.notification.update({
       where: { id: req.params.id as string },
       data: { read: true },

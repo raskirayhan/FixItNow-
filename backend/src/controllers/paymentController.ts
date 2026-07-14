@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import stripe from "../config/stripe";
 import prisma from "../config/db";
-import { v4 as uuidv4 } from "uuid";
 import Stripe from "stripe";
 
 export const createPaymentIntent = async (
@@ -125,18 +124,22 @@ export const handleWebhook = async (
       const bookingId = paymentIntent.metadata.bookingId;
 
       if (bookingId) {
-        await prisma.booking.update({
-          where: { id: bookingId },
-          data: { status: "PAID" },
-        });
+        const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
 
-        await prisma.payment.update({
-          where: { bookingId },
-          data: {
-            status: "COMPLETED",
-            paidAt: new Date(),
-          },
-        });
+        if (booking && booking.status === "ACCEPTED") {
+          await prisma.booking.update({
+            where: { id: bookingId },
+            data: { status: "PAID" },
+          });
+
+          await prisma.payment.update({
+            where: { bookingId },
+            data: {
+              status: "COMPLETED",
+              paidAt: new Date(),
+            },
+          });
+        }
       }
     }
 

@@ -25,7 +25,7 @@ export const addMoney = async (req: Request, res: Response, next: NextFunction):
     if (!wallet) { wallet = await prisma.wallet.create({ data: { userId: req.user!.userId } }); }
 
     const [updatedWallet, transaction] = await prisma.$transaction([
-      prisma.wallet.update({ where: { id: wallet.id }, data: { balance: { increment: amount }, totalSpent: { increment: amount } } }),
+      prisma.wallet.update({ where: { id: wallet.id }, data: { balance: { increment: amount } } }),
       prisma.walletTransaction.create({ data: { walletId: wallet.id, type: "credit", amount, description: description || "Added to wallet", status: "COMPLETED" } }),
     ]);
 

@@ -8,7 +8,7 @@ export const getTechnicianReviews = async (req: Request, res: Response, next: Ne
       include: { customer: { select: { id: true, name: true } } },
       orderBy: { createdAt: "desc" },
     });
-    res.status(200).json({ success: true, data: reviews });
+    res.status(200).json({ success: true, message: "Technician reviews retrieved", data: reviews });
   } catch (error) { next(error); }
 };
 

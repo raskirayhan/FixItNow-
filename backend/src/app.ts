@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import routes from "./routes";
 import errorHandler from "./middlewares/errorHandler";
+import { setupSwagger } from "./config/swagger";
 
 dotenv.config();
 
@@ -38,6 +39,8 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   }
 });
+
+setupSwagger(app);
 
 app.get("/api/health", (_req, res) => {
   res.status(200).json({

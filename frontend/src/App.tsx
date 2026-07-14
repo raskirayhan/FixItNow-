@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CookieConsent from "@/components/shared/CookieConsent";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Pages
 import Landing from "@/pages/Landing";
@@ -68,7 +68,6 @@ function Unauthorized() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
           <AnimatePresence mode="wait">
             <Routes>
@@ -93,29 +92,29 @@ export default function App() {
               <Route path="/unauthorized" element={<><Navbar /><Unauthorized /></>} />
 
               {/* Protected Routes (no footer) */}
-              <Route path="/booking/:serviceId" element={<><Navbar /><Booking /></>} />
-              <Route path="/payment/:bookingId" element={<><Navbar /><Payment /></>} />
-              <Route path="/wallet" element={<><Navbar /><Wallet /></>} />
-              <Route path="/profile" element={<><Navbar /><Profile /></>} />
-              <Route path="/notifications" element={<><Navbar /><NotificationCenter /></>} />
+              <Route path="/booking/:serviceId" element={<ProtectedRoute><><Navbar /><Booking /></></ProtectedRoute>} />
+              <Route path="/payment/:bookingId" element={<ProtectedRoute><><Navbar /><Payment /></></ProtectedRoute>} />
+              <Route path="/wallet" element={<ProtectedRoute><><Navbar /><Wallet /></></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><><Navbar /><Profile /></></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><><Navbar /><NotificationCenter /></></ProtectedRoute>} />
 
               {/* Customer Dashboard */}
-              <Route path="/customer" element={<CustomerDashboard />} />
-              <Route path="/customer/:tab" element={<CustomerDashboard />} />
+              <Route path="/customer" element={<ProtectedRoute allowedRoles={["CUSTOMER"]}><CustomerDashboard /></ProtectedRoute>} />
+              <Route path="/customer/:tab" element={<ProtectedRoute allowedRoles={["CUSTOMER"]}><CustomerDashboard /></ProtectedRoute>} />
 
               {/* Technician Dashboard */}
-              <Route path="/technician" element={<TechnicianDashboard />} />
-              <Route path="/technician/:tab" element={<TechnicianDashboard />} />
+              <Route path="/technician" element={<ProtectedRoute allowedRoles={["TECHNICIAN"]}><TechnicianDashboard /></ProtectedRoute>} />
+              <Route path="/technician/:tab" element={<ProtectedRoute allowedRoles={["TECHNICIAN"]}><TechnicianDashboard /></ProtectedRoute>} />
 
               {/* Admin Dashboard */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/technicians" element={<AdminTechnicians />} />
-              <Route path="/admin/bookings" element={<AdminBookings />} />
-              <Route path="/admin/categories" element={<AdminCategories />} />
-              <Route path="/admin/payments" element={<AdminPayments />} />
-              <Route path="/admin/reviews" element={<AdminReviews />} />
-              <Route path="/admin/reports" element={<AdminReports />} />
+              <Route path="/admin" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminUsers /></ProtectedRoute>} />
+              <Route path="/admin/technicians" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminTechnicians /></ProtectedRoute>} />
+              <Route path="/admin/bookings" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminBookings /></ProtectedRoute>} />
+              <Route path="/admin/categories" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminCategories /></ProtectedRoute>} />
+              <Route path="/admin/payments" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminPayments /></ProtectedRoute>} />
+              <Route path="/admin/reviews" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminReviews /></ProtectedRoute>} />
+              <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminReports /></ProtectedRoute>} />
 
               {/* 404 */}
               <Route path="/404" element={<NotFound />} />
@@ -124,7 +123,6 @@ export default function App() {
           </AnimatePresence>
           <CookieConsent />
         </div>
-      </AuthProvider>
     </BrowserRouter>
   );
 }

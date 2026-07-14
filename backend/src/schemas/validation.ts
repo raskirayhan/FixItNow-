@@ -47,6 +47,34 @@ export const createPaymentSchema = z.object({
   bookingId: z.string().uuid("Invalid booking ID"),
 });
 
+export const updateProfileSchema = z.object({
+  name: z.string().min(1, "Name is required").optional(),
+  phone: z.string().optional(),
+  location: z.string().optional(),
+  bio: z.string().optional(),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "New password must be at least 8 characters"),
+});
+
+export const updateTechnicianProfileSchema = z.object({
+  bio: z.string().optional(),
+  experienceYears: z.number().int().min(0).optional(),
+  skills: z.array(z.string()).optional(),
+  baseHourlyRate: z.number().positive().optional(),
+});
+
+export const addMoneySchema = z.object({
+  amount: z.number().positive("Amount must be a positive number"),
+  description: z.string().optional(),
+});
+
+export const banUserSchema = z.object({
+  status: z.enum(["ACTIVE", "BANNED"]),
+});
+
 export const adminUpdateUserSchema = z.object({
   status: z.enum(["ACTIVE", "BANNED"]).optional(),
   role: z.enum(["CUSTOMER", "TECHNICIAN", "ADMIN"]).optional(),

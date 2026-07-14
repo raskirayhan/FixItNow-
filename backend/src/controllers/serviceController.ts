@@ -1,6 +1,26 @@
 import { Request, Response, NextFunction } from "express";
 import prisma from "../config/db";
 
+export const getCategories = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const categories = await prisma.category.findMany({
+      include: { _count: { select: { services: true } } },
+      orderBy: { name: "asc" },
+    });
+    res.status(200).json({
+      success: true,
+      message: "Categories retrieved",
+      data: categories,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createService = async (
   req: Request,
   res: Response,
