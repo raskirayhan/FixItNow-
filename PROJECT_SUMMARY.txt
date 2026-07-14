@@ -1,0 +1,335 @@
+================================================================================
+                         PROJECT SUMMARY - FixItNow
+================================================================================
+
+PROJECT NAME
+    FixItNow
+
+DESCRIPTION
+    FixItNow is a full-stack home services marketplace platform that connects
+    customers needing home services (plumbing, electrical, cleaning, painting)
+    with verified technicians. The platform supports service browsing, booking
+    management, secure Stripe payments, and a review system.
+
+PROJECT PURPOSE
+    To provide a seamless marketplace experience where customers can discover
+    local technicians, book services, make secure payments, and leave reviews.
+    Technicians can manage their profiles, accept or decline booking requests,
+    and track their earnings. Administrators can monitor platform activity,
+    manage users, and view analytics.
+
+================================================================================
+                           TECH STACK
+================================================================================
+
+    Backend:
+        - Runtime:       Node.js
+        - Framework:     Express.js v5
+        - Language:      TypeScript v7
+        - ORM:           Prisma v5
+        - Database:      PostgreSQL
+        - Auth:          JSON Web Tokens (JWT) + bcryptjs
+        - Payments:      Stripe API
+        - Validation:    Zod v4
+
+    Frontend:
+        - Framework:     React v19
+        - Language:      TypeScript v6
+        - Build Tool:    Vite v8
+        - Styling:       TailwindCSS v4
+        - Routing:       React Router v7
+        - HTTP Client:   Axios
+        - Payments:      Stripe Elements (@stripe/react-stripe-js)
+
+================================================================================
+                        FOLDER STRUCTURE
+================================================================================
+
+    FixItNow/
+    |
+    |-- package.json              Root convenience scripts (no dependencies)
+    |-- .gitignore                Git ignore rules
+    |
+    |-- frontend/                 Frontend application (React + Vite)
+    |   |-- package.json          Frontend dependencies and scripts
+    |   |-- tsconfig.json         TypeScript project references
+    |   |-- tsconfig.app.json     App TypeScript config
+    |   |-- tsconfig.node.json    Node (Vite) TypeScript config
+    |   |-- vite.config.ts        Vite configuration with API proxy
+    |   |-- index.html            HTML entry point
+    |   |-- .env                  Frontend environment variables
+    |   |-- .gitignore            Frontend-specific git ignores
+    |   |-- public/               Static assets
+    |   |-- src/
+    |       |-- main.tsx          Application entry point
+    |       |-- App.tsx           Router configuration
+    |       |-- index.css         Global styles (TailwindCSS + custom theme)
+    |       |-- types/            TypeScript type definitions
+    |       |-- context/          React context providers (Auth)
+    |       |-- hooks/            Custom hooks (useFetch, useMutation, api)
+    |       |-- components/       Reusable UI components (Navbar, Footer, etc.)
+    |       |-- pages/            Page components (Home, Login, Register, etc.)
+    |
+    |-- backend/                  Backend application (Express + Prisma)
+        |-- package.json          Backend dependencies and scripts
+        |-- tsconfig.json         TypeScript configuration
+        |-- prisma.config.ts      Prisma configuration
+        |-- .env                  Backend environment variables
+        |-- prisma/
+        |   |-- schema.prisma     Database schema (Prisma)
+        |   |-- seed.ts           Database seed script
+        |-- src/
+            |-- server.ts         Server entry point
+            |-- app.ts            Express app setup (CORS, middleware, routes)
+            |-- config/           Configuration (db.ts, stripe.ts)
+            |-- controllers/      Route handlers
+            |-- middlewares/       Auth, validation, error handling
+            |-- routes/           API route definitions
+            |-- schemas/          Zod validation schemas
+
+================================================================================
+                      FRONTEND OVERVIEW
+================================================================================
+
+    Pages:
+        /                   Home - Service browsing with search and filters
+        /login              Customer/Technician login
+        /register           Account registration (Customer or Technician)
+        /customer           Customer dashboard (bookings, reviews)
+        /technician         Technician dashboard (earnings, booking management)
+        /checkout/:bookingId  Stripe payment checkout
+        /unauthorized       Unauthorized access page
+
+    Components:
+        Navbar              Responsive navigation bar with user menu
+        Footer              Site-wide footer with links
+        ProtectedRoute      Auth + role-based route guard
+
+    Context:
+        AuthContext          Manages user state, token persistence, login/logout
+
+    Hooks:
+        useFetch<T>          Generic GET request hook with loading/error states
+        useMutation<T,V>     Generic mutation hook (POST/PUT/PATCH/DELETE)
+        api                  Axios instance with auto-attached auth token
+
+================================================================================
+                      BACKEND OVERVIEW
+================================================================================
+
+    Architecture:
+        - Express.js v5 with TypeScript
+        - Modular structure: controllers, routes, middlewares, schemas
+        - Prisma ORM for database access
+        - JWT-based authentication with role-based access control
+
+    Middleware:
+        authenticateToken     Validates JWT and attaches user to request
+        requireRole(roles[])  Restricts access to specified user roles
+        validate(schema)      Zod schema validation for request bodies
+        errorHandler          Global error handling with structured responses
+
+    Controllers:
+        authController        Registration, login, profile retrieval
+        serviceController     Service CRUD, search with filters
+        bookingController     Booking creation, status management
+        paymentController     Stripe PaymentIntent creation, webhook handling
+        reviewController      Review creation for completed bookings
+        adminController       User management, stats, categories
+
+================================================================================
+                          DATABASE
+================================================================================
+
+    Database: PostgreSQL via Prisma ORM
+
+    Models:
+        User              User accounts (customers, technicians, admins)
+        TechnicianProfile Extended profile for technicians
+        Category          Service categories (Plumbing, Electrical, etc.)
+        Service           Services offered by technicians
+        Booking           Service bookings between customers and technicians
+        Payment           Stripe payment records
+        Review            Customer reviews for completed bookings
+
+    Enums:
+        Role              CUSTOMER, TECHNICIAN, ADMIN
+        UserStatus        ACTIVE, BANNED
+        BookingStatus     REQUESTED, ACCEPTED, DECLINED, PAID, IN_PROGRESS,
+                          COMPLETED, CANCELLED
+        PaymentStatus     PENDING, COMPLETED, FAILED
+
+    Seeded Data:
+        - 4 categories: Plumbing, Electrical, Cleaning, Painting
+        - 1 admin user: admin@fixitnow.com / AdminSecure2026!
+
+================================================================================
+                      AUTHENTICATION
+================================================================================
+
+    Mechanism: JWT (JSON Web Tokens)
+
+    Flow:
+        1. User registers or logs in via /api/auth/register or /api/auth/login
+        2. Server validates credentials, generates JWT (7-day expiry)
+        3. Token returned to client and stored in localStorage
+        4. Client attaches token as Bearer header on all authenticated requests
+        5. Server middleware validates token and attaches user info to request
+        6. Role-based middleware restricts access to specific endpoints
+
+    Password Security:
+        - bcryptjs with 12 salt rounds
+        - Passwords never returned in API responses
+
+    Frontend Integration:
+        - AuthContext manages global auth state
+        - Auto-restores session from stored token on page load via /api/auth/me
+        - ProtectedRoute component guards routes by auth status and role
+
+================================================================================
+                       API ENDPOINTS
+================================================================================
+
+    Health Check:
+        GET /api/health                          (Public)
+
+    Authentication:
+        POST   /api/auth/register                (Public)
+        POST   /api/auth/login                   (Public)
+        GET    /api/auth/me                      (Authenticated)
+
+    Services:
+        GET    /api/services                     (Public - search, filter by category/rating)
+        GET    /api/services/categories          (Public)
+        GET    /api/services/:id                 (Public - service detail with reviews)
+        GET    /api/services/technician/:id      (Public - technician's services)
+        POST   /api/services                     (Technician only - create service)
+
+    Bookings:
+        POST   /api/bookings                     (Customer only - create booking)
+        PATCH  /api/bookings/:id/status          (Customer/Technician - update status)
+        GET    /api/bookings/customer            (Customer only - list bookings)
+        GET    /api/bookings/technician          (Technician only - list bookings)
+
+    Payments:
+        POST   /api/payments/create              (Customer only - create Stripe PaymentIntent)
+        POST   /api/payments/webhook             (Public - Stripe webhook callback)
+
+    Reviews:
+        POST   /api/reviews                      (Customer only - create review)
+
+    Admin:
+        GET    /api/admin/users                  (Admin only)
+        PATCH  /api/admin/users/:id/ban          (Admin only - ban/unban user)
+        GET    /api/admin/bookings               (Admin only)
+        GET    /api/admin/stats                  (Admin only - dashboard stats)
+        GET    /api/admin/categories             (Admin only)
+
+================================================================================
+                     INSTALLATION GUIDE
+================================================================================
+
+    Prerequisites:
+        - Node.js v18+
+        - PostgreSQL database
+        - Stripe account (for payment features)
+
+    Steps:
+        1. Clone the repository
+        2. Install frontend dependencies:
+             cd frontend && npm install
+        3. Install backend dependencies:
+             cd backend && npm install
+        4. Configure environment variables (see Environment Variables section)
+        5. Set up the database:
+             cd backend && npx prisma db push
+        6. Seed the database:
+             cd backend && npm run db:seed
+
+================================================================================
+                     RUNNING FRONTEND
+================================================================================
+
+    Development:
+        From root:     npm run dev:frontend
+        From frontend: cd frontend && npm run dev
+
+    The frontend runs on http://localhost:5173 by default.
+    API requests are proxied to http://localhost:5000 via Vite config.
+
+================================================================================
+                     RUNNING BACKEND
+================================================================================
+
+    Development:
+        From root:     npm run dev:backend
+        From backend:  cd backend && npm run dev
+
+    Production:
+        Build:         cd backend && npm run build
+        Start:         cd backend && npm run start
+
+    The backend runs on http://localhost:5000 by default.
+
+================================================================================
+                     ENVIRONMENT VARIABLES
+================================================================================
+
+    Backend (.env):
+        DATABASE_URL          PostgreSQL connection string
+                             Default: postgresql://postgres:postgres@localhost:5432/fixitnow?schema=public
+        JWT_SECRET            Secret key for JWT signing
+        STRIPE_SECRET_KEY     Stripe secret API key
+        STRIPE_WEBHOOK_SECRET Stripe webhook endpoint signing secret
+        PORT                  Server port (default: 5000)
+
+    Frontend (.env):
+        VITE_STRIPE_PUBLISHABLE_KEY   Stripe publishable key for client-side
+
+================================================================================
+                         DATA FLOW
+================================================================================
+
+    1. BROWSE SERVICES:
+       Home page -> GET /api/services -> Display service cards with ratings
+
+    2. BOOK SERVICE:
+       Customer clicks "Book" -> POST /api/bookings -> Status: REQUESTED
+       -> Technician sees request in dashboard
+
+    3. ACCEPT/DECLINE:
+       Technician accepts -> PATCH /api/bookings/:id/status -> Status: ACCEPTED
+       -> Customer sees accepted booking
+
+    4. PAYMENT:
+       Customer goes to checkout -> POST /api/payments/create
+       -> Stripe PaymentElement renders -> Payment confirmed
+       -> Webhook: Status -> PAID
+
+    5. SERVICE DELIVERY:
+       Technician marks in-progress -> Status: IN_PROGRESS
+       Technician completes -> Status: COMPLETED
+
+    6. REVIEW:
+       Customer leaves review -> POST /api/reviews -> Rating + comment
+       -> Displayed on service detail page
+
+================================================================================
+                    FUTURE IMPROVEMENTS
+================================================================================
+
+    - Real-time notifications via WebSockets
+    - Image upload for technician profiles and service galleries
+    - Map-based location search for nearby technicians
+    - Scheduling calendar with availability management
+    - Multi-language support (i18n)
+    - Mobile app (React Native)
+    - Email notifications for booking status changes
+    - Advanced admin analytics dashboard
+    - Service area pricing (distance-based pricing)
+    - Coupon and discount system
+    - Technician verification and certification uploads
+    - Dispute resolution system
+    - In-app messaging between customers and technicians
+
+================================================================================
