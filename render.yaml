@@ -16,29 +16,10 @@ services:
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
       - key: FRONTEND_URL
-        fromService:
-          name: fixitnow-frontend
-          property: host
+        sync: false
       - key: PORT
         value: 5000
       - key: NODE_ENV
         value: production
     healthCheckPath: /api/health
-    autoDeploy: true
-
-  - type: web
-    name: fixitnow-frontend
-    runtime: node
-    region: oregon
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    staticSite:
-      publishPath: dist
-    envVars:
-      - key: VITE_STRIPE_PUBLISHABLE_KEY
-        sync: false
-      - key: VITE_API_URL
-        fromService:
-          name: fixitnow-backend
-          property: host
     autoDeploy: true
