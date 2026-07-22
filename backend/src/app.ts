@@ -42,6 +42,17 @@ app.use((req, res, next) => {
 
 setupSwagger(app);
 
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Welcome to FixItNow API",
+    version: "1.0.0",
+    status: "running",
+    documentation: "/api-docs",
+    health: "/api/health",
+  });
+});
+
 app.get("/api/health", (_req, res) => {
   res.status(200).json({
     success: true,
