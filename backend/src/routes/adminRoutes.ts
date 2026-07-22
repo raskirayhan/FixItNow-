@@ -8,7 +8,7 @@ import {
 } from "../controllers/adminController";
 import { authenticateToken, requireRole } from "../middlewares/auth";
 import validate from "../middlewares/validate";
-import { adminUpdateUserSchema, banUserSchema } from "../schemas/validation";
+import { banUserSchema } from "../schemas/validation";
 
 const router = Router();
 
