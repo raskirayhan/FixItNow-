@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "FixItNow API",
-    "description": "FixItNow Home Services Marketplace API\n\n## Authentication\nAll protected endpoints require a Bearer token in the Authorization header.\n\n## Admin Account\n- Email: admin@fixitnow.com\n- Password: admin123\n\n## Test Accounts\n- Customer: customer1@test.com / Password123!\n- Technician: tech1@test.com / Password123!",
+    "description": "FixItNow Home Services Marketplace API\n\n## Authentication\nAll protected endpoints require a Bearer token in the Authorization header.\n\nSet the credential variables in a private local Postman environment before using the login requests. This collection intentionally contains no default credentials or secrets.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -19,6 +19,50 @@
     },
     {
       "key": "technicianToken",
+      "value": ""
+    },
+    {
+      "key": "adminEmail",
+      "value": ""
+    },
+    {
+      "key": "adminPassword",
+      "value": ""
+    },
+    {
+      "key": "customerEmail",
+      "value": ""
+    },
+    {
+      "key": "customerPassword",
+      "value": ""
+    },
+    {
+      "key": "technicianEmail",
+      "value": ""
+    },
+    {
+      "key": "technicianPassword",
+      "value": ""
+    },
+    {
+      "key": "newUserEmail",
+      "value": ""
+    },
+    {
+      "key": "newUserPassword",
+      "value": ""
+    },
+    {
+      "key": "newUserName",
+      "value": ""
+    },
+    {
+      "key": "currentPassword",
+      "value": ""
+    },
+    {
+      "key": "newPassword",
       "value": ""
     }
   ],
@@ -59,7 +103,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"newuser@test.com\",\n  \"password\": \"Password123!\",\n  \"name\": \"Test User\",\n  \"role\": \"CUSTOMER\"\n}"
+              "raw": "{\n  \"email\": \"{{newUserEmail}}\",\n  \"password\": \"{{newUserPassword}}\",\n  \"name\": \"{{newUserName}}\",\n  \"role\": \"CUSTOMER\"\n}"
             }
           }
         },
@@ -84,7 +128,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@fixitnow.com\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
             }
           }
         },
@@ -109,7 +153,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"customer1@test.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"{{customerEmail}}\",\n  \"password\": \"{{customerPassword}}\"\n}"
             }
           }
         },
@@ -134,7 +178,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"tech1@test.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"{{technicianEmail}}\",\n  \"password\": \"{{technicianPassword}}\"\n}"
             }
           }
         },
@@ -185,7 +229,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"Password123!\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+              "raw": "{\n  \"currentPassword\": \"{{currentPassword}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}"
             }
           }
         },

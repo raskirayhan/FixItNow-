@@ -6,6 +6,12 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
+  const seedPassword = process.env.SEED_PASSWORD;
+  if (!seedPassword) {
+    throw new Error("SEED_PASSWORD must be set before running the seed script");
+  }
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@example.invalid";
+
   // --- Categories (8 total) ---
   const categoryData = [
     { name: "Plumbing", slug: "plumbing", description: "Professional plumbing services including repairs, installations, and maintenance." },
@@ -30,14 +36,14 @@ async function main() {
   console.log("  Created 8 categories");
 
   // --- Users ---
-  const adminPassword = await bcrypt.hash("admin123", 12);
-  const userPassword = await bcrypt.hash("Password123!", 12);
+  const adminPassword = await bcrypt.hash(seedPassword, 12);
+  const userPassword = await bcrypt.hash(seedPassword, 12);
 
   const admin = await prisma.user.upsert({
-    where: { email: "admin@fixitnow.com" },
+    where: { email: adminEmail },
     update: { password: adminPassword },
     create: {
-      email: "admin@fixitnow.com",
+      email: adminEmail,
       password: adminPassword,
       name: "System Administrator",
       role: "ADMIN",

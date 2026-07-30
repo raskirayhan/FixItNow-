@@ -1,0 +1,65 @@
+name: Bug report
+description: Report a reproducible problem in FixItNow
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve FixItNow. Do not include secrets, tokens, credentials, or private user data.
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+      placeholder: A short description of the issue
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Frontend
+        - Backend API
+        - Database or Prisma
+        - Payments
+        - Deployment or CI
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: List the smallest set of steps that reproduces the problem.
+      placeholder: |
+        1. Start the backend...
+        2. Open...
+        3. Submit...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, browser, Node version, and package area as relevant.
+      placeholder: Windows 11, Chrome, Node 20, frontend
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      description: Redact tokens, credentials, personal data, and private URLs before posting.
