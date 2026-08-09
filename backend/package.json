@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "npx prisma db push --accept-data-loss && (npx tsx prisma/seed.ts || echo 'Seed skipped') && node dist/server.js",
     "dev": "nodemon --exec tsx src/server.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",

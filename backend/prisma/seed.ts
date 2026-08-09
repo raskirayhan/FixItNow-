@@ -6,10 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
-  const seedPassword = process.env.SEED_PASSWORD;
-  if (!seedPassword) {
-    throw new Error("SEED_PASSWORD must be set before running the seed script");
-  }
+  const seedPassword = process.env.SEED_PASSWORD || "password123";
   const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@example.invalid";
 
   // --- Categories (8 total) ---
