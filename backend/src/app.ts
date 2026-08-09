@@ -40,7 +40,7 @@ app.use(
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
-      } else if (/\.vercel\.app$/.test(origin)) {
+      } else if (/\.vercel\.app$/.test(origin) || /\.netlify\.app$/.test(origin)) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
@@ -68,6 +68,16 @@ app.get("/", (_req, res) => {
     status: "running",
     documentation: "/api-docs",
     health: "/api/health",
+  });
+});
+
+app.get("/api", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "FixItNow API Root",
+    health: "/api/health",
+    documentation: "/api-docs",
+    services: "/api/services",
   });
 });
 
