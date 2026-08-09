@@ -189,9 +189,10 @@ export default function Booking() {
   const handleConfirm = async () => {
     setState((prev) => ({ ...prev, isSubmitting: true }));
     try {
+      const scheduledDate = state.selectedDate ? new Date(state.selectedDate).toISOString() : new Date().toISOString();
       const result = await createBooking.mutateAsync({
         serviceId: state.selectedService!,
-        scheduledAt: state.selectedDate || new Date().toISOString(),
+        scheduledAt: scheduledDate,
         timeSlot: state.selectedTime || undefined,
       });
       setBookingResult(result?.data);
@@ -806,7 +807,7 @@ export default function Booking() {
                                 {selectedServiceData.title}
                               </h3>
                               <p className={cn("mt-1 text-sm", isDark ? "text-slate-400" : "text-slate-500")}>
-                                {selectedServiceData.technician?.user.name}
+                                {selectedServiceData.technician?.name || selectedServiceData.technician?.user?.name || "Technician"}
                               </p>
                               <div className="mt-1 flex items-center gap-1">
                                 <StarRating rating={selectedServiceData.rating} size="sm" />

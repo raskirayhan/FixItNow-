@@ -508,7 +508,10 @@ export default function Register() {
 
                   <Checkbox
                     label="I agree to the Terms of Service and Privacy Policy"
-                    {...register("agreeToTerms")}
+                    checked={watch("agreeToTerms") === true}
+                    onCheckedChange={(checked) =>
+                      setValue("agreeToTerms", checked === true ? true : (false as any), { shouldValidate: true })
+                    }
                   />
                   {errors.agreeToTerms && (
                     <p className="text-xs text-red-500">{errors.agreeToTerms.message}</p>

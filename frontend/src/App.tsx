@@ -75,6 +75,9 @@ export default function App() {
               <Route path="/" element={<><Navbar /><Landing /><Footer /></>} />
               <Route path="/services" element={<><Navbar /><Services /><Footer /></>} />
               <Route path="/services/:technicianId" element={<><Navbar /><TechnicianProfile /><Footer /></>} />
+              <Route path="/technicians" element={<><Navbar /><Services /><Footer /></>} />
+              <Route path="/technicians/:technicianId" element={<><Navbar /><TechnicianProfile /><Footer /></>} />
+              <Route path="/bookings" element={<Navigate to="/customer" replace />} />
               <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
               <Route path="/contact" element={<><Navbar /><Contact /><Footer /></>} />
               <Route path="/blog" element={<><Navbar /><Blog /><Footer /></>} />

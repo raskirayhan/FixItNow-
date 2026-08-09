@@ -85,32 +85,37 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </p>
 
         {/* Technician Info */}
-        {service.technician && (
-          <div className="mt-4 flex items-center gap-3 border-t pt-4 dark:border-slate-700/50">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-white text-xs font-bold">
-              {service.technician.user.avatar ? (
-                <img
-                  src={service.technician.user.avatar}
-                  alt={service.technician.user.name}
-                  className="h-8 w-8 rounded-full object-cover"
-                />
-              ) : (
-                service.technician.user.name.charAt(0)
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className={cn("truncate text-sm font-medium", isDark ? "text-white" : "text-slate-900")}>
-                {service.technician.user.name}
-              </p>
-              <div className="flex items-center gap-1.5">
-                <StarRating rating={service.rating} size="sm" />
-                <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>
-                  ({service.reviewCount})
-                </span>
+        {service.technician && (() => {
+          const tech = service.technician as any;
+          const techName = tech.name || tech.user?.name || "Technician";
+          const techAvatar = tech.avatar || tech.user?.avatar;
+          return (
+            <div className="mt-4 flex items-center gap-3 border-t pt-4 dark:border-slate-700/50">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-white text-xs font-bold">
+                {techAvatar ? (
+                  <img
+                    src={techAvatar}
+                    alt={techName}
+                    className="h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  techName.charAt(0)
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className={cn("truncate text-sm font-medium", isDark ? "text-white" : "text-slate-900")}>
+                  {techName}
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <StarRating rating={service.rating} size="sm" />
+                  <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>
+                    ({service.reviewCount})
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Book Button */}
         <Link

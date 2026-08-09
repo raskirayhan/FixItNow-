@@ -74,8 +74,8 @@ export default function Services() {
   const enrichedServices = useMemo(() => {
     return apiServices.map((s: any) => ({
       ...s,
-      technician: technicians.find((t) => t.id === s.technicianId),
-      category: apiCategories.find((c: any) => c.id === s.categoryId),
+      technician: s.technician || technicians.find((t) => t.id === s.technicianId),
+      category: s.category || apiCategories.find((c: any) => c.id === s.categoryId),
     }));
   }, [apiServices, apiCategories]);
 

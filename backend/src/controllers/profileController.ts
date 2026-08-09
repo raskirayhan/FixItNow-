@@ -61,15 +61,24 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
 export const updateTechnicianProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { bio, experienceYears, skills, baseHourlyRate } = req.body;
-    const profile = await prisma.technicianProfile.update({
-      where: { userId: req.user!.userId },
-      data: {
+    const userId = req.user!.userId;
+    const profile = await prisma.technicianProfile.upsert({
+      where: { userId },
+      update: {
         ...(bio !== undefined && { bio }),
         ...(experienceYears !== undefined && { experienceYears }),
         ...(skills !== undefined && { skills }),
         ...(baseHourlyRate !== undefined && { baseHourlyRate }),
       },
+      create: {
+        userId,
+        bio: bio || "",
+        experienceYears: experienceYears || 0,
+        skills: skills || [],
+        baseHourlyRate: baseHourlyRate || 0,
+      },
     });
     res.status(200).json({ success: true, message: "Technician profile updated", data: profile });
   } catch (error) { next(error); }
 };
+

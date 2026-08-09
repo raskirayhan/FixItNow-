@@ -112,7 +112,7 @@ export default function TechnicianCard({ technician }: TechnicianCardProps) {
       {/* Buttons */}
       <div className="mt-5 flex gap-2">
         <Link
-          to={`/technicians/${user.id}`}
+          to={`/services/${user?.id || technician.id}`}
           className={cn(
             "flex-1 rounded-xl border py-2.5 text-center text-sm font-semibold transition-colors",
             isDark
