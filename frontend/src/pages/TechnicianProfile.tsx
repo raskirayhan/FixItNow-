@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { TechnicianProfile as TechnicianProfileType, Service, Review } from "@/types";
 import type { TechnicianProfile } from "@/types";
 import ServiceCard from "@/components/shared/ServiceCard";
+import { technicians } from "@/mock/data";
 import ReviewCard from "@/components/shared/ReviewCard";
 import StarRating from "@/components/shared/StarRating";
 import PageHeader from "@/components/shared/PageHeader";
@@ -73,10 +74,42 @@ export default function TechnicianProfile() {
 
   const technician: TechnicianProfileType | null = useMemo(() => {
     if (apiServices.length > 0 && apiServices[0].technician) {
-      return apiServices[0].technician as TechnicianProfileType;
+      const tech = apiServices[0].technician;
+      return {
+        id: tech.id,
+        userId: tech.id,
+        user: {
+          id: tech.id,
+          name: tech.name,
+          email: tech.email,
+          phone: tech.phone || "",
+          location: tech.location || "",
+          avatar: tech.avatar || `https://i.pravatar.cc/150?u=${tech.id}`,
+          role: "TECHNICIAN",
+          status: "ACTIVE",
+          createdAt: tech.createdAt || new Date().toISOString(),
+        },
+        bio: tech.technicianProfile?.bio || "Professional home service technician.",
+        experienceYears: tech.technicianProfile?.experienceYears || 5,
+        skills: tech.technicianProfile?.skills || ["General Maintenance"],
+        baseHourlyRate: tech.technicianProfile?.baseHourlyRate || 50,
+        rating: 4.8,
+        totalReviews: apiReviews.length,
+        completedJobs: 15,
+        availability: [
+          { day: "Monday", available: true, startTime: "08:00", endTime: "18:00" },
+          { day: "Tuesday", available: true, startTime: "08:00", endTime: "18:00" },
+          { day: "Wednesday", available: true, startTime: "08:00", endTime: "18:00" },
+          { day: "Thursday", available: true, startTime: "08:00", endTime: "18:00" },
+          { day: "Friday", available: true, startTime: "08:00", endTime: "17:00" },
+        ],
+      } as any;
     }
-    return null;
-  }, [apiServices]);
+    const mockTech = technicians.find(
+      (t) => t.id === technicianId || t.userId === technicianId || t.user?.id === technicianId
+    );
+    return mockTech || null;
+  }, [apiServices, apiReviews, technicianId]);
 
   const techServices: Service[] = useMemo(() => {
     if (!technician) return [];

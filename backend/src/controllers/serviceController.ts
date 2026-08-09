@@ -252,9 +252,26 @@ export const getTechnicianServices = async (
     const technicianId = req.params.technicianId as string;
 
     const services = await prisma.service.findMany({
-      where: { technicianId },
+      where: {
+        OR: [
+          { technicianId: technicianId },
+          { technician: { id: technicianId } },
+          { technician: { technicianProfile: { id: technicianId } } }
+        ]
+      },
       include: {
         category: true,
+        technician: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            location: true,
+            createdAt: true,
+            technicianProfile: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
