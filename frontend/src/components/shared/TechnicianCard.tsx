@@ -122,7 +122,7 @@ export default function TechnicianCard({ technician }: TechnicianCardProps) {
         >
           View Profile
         </Link>
-        <Link to={`/services/${technician.id}`} className="btn-primary flex-1 !rounded-xl !py-2.5 !text-sm">
+        <Link to={`/booking/service-1?technicianId=${user?.id || technician.id}`} className="btn-primary flex-1 !rounded-xl !py-2.5 !text-sm">
           Book Now
         </Link>
       </div>

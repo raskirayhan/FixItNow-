@@ -186,10 +186,10 @@ export default function TechnicianProfile() {
     <div className={cn("min-h-screen", isDark ? "bg-slate-900" : "bg-slate-50")}>
       {/* Profile Header */}
       <div className={cn(
-        "relative overflow-hidden",
+        "relative overflow-hidden border-b",
         isDark
-          ? "bg-gradient-to-r from-slate-800 via-slate-900 to-primary-950/30"
-          : "bg-gradient-to-r from-slate-100 via-white to-primary-50"
+          ? "bg-gradient-to-r from-slate-950 via-slate-900 to-slate-900 border-slate-800/80"
+          : "bg-gradient-to-r from-slate-100 via-white to-primary-50 border-slate-200/80"
       )}>
         <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-primary-400/10 blur-3xl" />
         <div className="absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-primary-600/5 blur-3xl" />
@@ -529,105 +529,108 @@ export default function TechnicianProfile() {
             <div className="sticky top-24 space-y-6">
               {/* Pricing Card */}
               <motion.div {...fadeInUp}>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center">
-                      <p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-500")}>
-                        Starting from
-                      </p>
-                      <p className={cn("mt-1 text-3xl font-extrabold", isDark ? "text-white" : "text-slate-900")}>
-                        {formatCurrency(technician.baseHourlyRate || 0)}
-                        <span className="text-sm font-normal text-slate-500">/hr</span>
-                      </p>
-                    </div>
+                <div className={cn(
+                  "rounded-2xl border p-6 shadow-xl backdrop-blur-md transition-all duration-300",
+                  isDark
+                    ? "border-slate-800 bg-slate-800/90 text-white shadow-slate-950/50"
+                    : "border-slate-200/80 bg-white text-slate-900 shadow-slate-200/60"
+                )}>
+                  <div className="text-center">
+                    <p className={cn("text-xs font-semibold uppercase tracking-wider", isDark ? "text-slate-400" : "text-slate-500")}>
+                      Starting from
+                    </p>
+                    <p className={cn("mt-1 text-3xl font-extrabold tracking-tight", isDark ? "text-white" : "text-slate-900")}>
+                      {formatCurrency(technician.baseHourlyRate || 75)}
+                      <span className={cn("text-sm font-normal", isDark ? "text-slate-400" : "text-slate-500")}>/hr</span>
+                    </p>
+                  </div>
 
-                    <Button
-                      className="mt-6 w-full !rounded-xl !py-6 text-base"
-                      onClick={() => {
-                        const firstService = techServices[0];
-                        if (firstService) {
-                          navigate(`/booking/${firstService.id}`);
-                        }
-                      }}
-                    >
-                      Book Appointment
-                    </Button>
+                  <Button
+                    className="mt-6 w-full !rounded-xl !py-6 text-base font-bold shadow-lg shadow-primary-500/25 transition-transform active:scale-95"
+                    onClick={() => {
+                      const firstService = techServices[0] || apiServices[0];
+                      const targetId = firstService?.id || "service-1";
+                      navigate(`/booking/${targetId}`);
+                    }}
+                  >
+                    Book Appointment
+                  </Button>
 
-                    <Separator className="my-5" />
+                  <Separator className="my-5" />
 
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", isDark ? "bg-slate-700" : "bg-slate-100")}>
-                          <Clock className="h-4 w-4 text-primary-500" />
-                        </div>
-                        <div>
-                          <p className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>Response Time</p>
-                          <p className={cn("text-sm font-semibold", isDark ? "text-white" : "text-slate-900")}>Under 1 hour</p>
-                        </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", isDark ? "bg-slate-700/70 text-primary-400" : "bg-primary-50 text-primary-600")}>
+                        <Clock className="h-5 w-5" />
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", isDark ? "bg-slate-700" : "bg-slate-100")}>
-                          <Briefcase className="h-4 w-4 text-primary-500" />
-                        </div>
-                        <div>
-                          <p className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>Completed Jobs</p>
-                          <p className={cn("text-sm font-semibold", isDark ? "text-white" : "text-slate-900")}>{technician.completedJobs}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", isDark ? "bg-slate-700" : "bg-slate-100")}>
-                          <Award className="h-4 w-4 text-primary-500" />
-                        </div>
-                        <div>
-                          <p className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>Member Since</p>
-                          <p className={cn("text-sm font-semibold", isDark ? "text-white" : "text-slate-900")}>{memberSince}</p>
-                        </div>
+                      <div>
+                        <p className={cn("text-xs font-medium", isDark ? "text-slate-400" : "text-slate-500")}>Response Time</p>
+                        <p className={cn("text-sm font-bold", isDark ? "text-white" : "text-slate-900")}>Under 1 hour</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex items-center gap-3">
+                      <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", isDark ? "bg-slate-700/70 text-primary-400" : "bg-primary-50 text-primary-600")}>
+                        <Briefcase className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className={cn("text-xs font-medium", isDark ? "text-slate-400" : "text-slate-500")}>Completed Jobs</p>
+                        <p className={cn("text-sm font-bold", isDark ? "text-white" : "text-slate-900")}>{technician.completedJobs}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", isDark ? "bg-slate-700/70 text-primary-400" : "bg-primary-50 text-primary-600")}>
+                        <Award className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className={cn("text-xs font-medium", isDark ? "text-slate-400" : "text-slate-500")}>Member Since</p>
+                        <p className={cn("text-sm font-bold", isDark ? "text-white" : "text-slate-900")}>{memberSince}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
 
               {/* Contact Card */}
               <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Contact</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <a
-                        href={`tel:${user.phone}`}
-                        className={cn(
-                          "flex items-center gap-3 rounded-xl p-3 text-sm font-medium transition-colors",
-                          isDark ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-50 text-slate-700"
-                        )}
-                      >
-                        <Phone className="h-4 w-4 text-primary-500" />
-                        {user.phone || "Phone not available"}
-                      </a>
-                      <a
-                        href={`mailto:${user.email}`}
-                        className={cn(
-                          "flex items-center gap-3 rounded-xl p-3 text-sm font-medium transition-colors",
-                          isDark ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-50 text-slate-700"
-                        )}
-                      >
-                        <Mail className="h-4 w-4 text-primary-500" />
-                        {user.email}
-                      </a>
-                      <button
-                        className={cn(
-                          "flex w-full items-center gap-3 rounded-xl p-3 text-sm font-medium transition-colors",
-                          isDark ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-50 text-slate-700"
-                        )}
-                      >
-                        <MessageCircle className="h-4 w-4 text-primary-500" />
-                        Send a Message
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className={cn(
+                  "rounded-2xl border p-6 shadow-xl backdrop-blur-md transition-all duration-300",
+                  isDark
+                    ? "border-slate-800 bg-slate-800/90 text-white shadow-slate-950/50"
+                    : "border-slate-200/80 bg-white text-slate-900 shadow-slate-200/60"
+                )}>
+                  <h3 className={cn("mb-4 text-base font-bold", isDark ? "text-white" : "text-slate-900")}>Contact Information</h3>
+                  <div className="space-y-3">
+                    <a
+                      href={`tel:${user.phone}`}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl p-3 text-sm font-medium transition-colors border",
+                        isDark ? "border-slate-700/60 bg-slate-800/50 hover:bg-slate-700/80 text-slate-200" : "border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-800"
+                      )}
+                    >
+                      <Phone className="h-4 w-4 text-primary-500 shrink-0" />
+                      <span className="truncate">{user.phone || "Phone not available"}</span>
+                    </a>
+                    <a
+                      href={`mailto:${user.email}`}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl p-3 text-sm font-medium transition-colors border",
+                        isDark ? "border-slate-700/60 bg-slate-800/50 hover:bg-slate-700/80 text-slate-200" : "border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-800"
+                      )}
+                    >
+                      <Mail className="h-4 w-4 text-primary-500 shrink-0" />
+                      <span className="truncate">{user.email}</span>
+                    </a>
+                    <button
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-xl p-3 text-sm font-medium transition-colors border",
+                        isDark ? "border-slate-700/60 bg-slate-800/50 hover:bg-slate-700/80 text-slate-200" : "border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-800"
+                      )}
+                    >
+                      <MessageCircle className="h-4 w-4 text-primary-500 shrink-0" />
+                      <span>Send a Message</span>
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             </div>
           </aside>

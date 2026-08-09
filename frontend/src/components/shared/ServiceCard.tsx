@@ -119,7 +119,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
 
         {/* Book Button */}
         <Link
-          to={`/services/${service.id}`}
+          to={`/booking/${service.id}`}
           className="btn-primary mt-4 w-full !rounded-xl !py-2.5 !text-sm"
         >
           Book Now
