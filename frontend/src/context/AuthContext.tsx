@@ -51,14 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     try {
       const res = await api.post("/auth/login", { email, password });
-      const { token: newToken, user: newUser } = res.data;
+      const payload = res.data?.data || res.data;
+      const newToken = payload?.token;
+      const newUser = payload?.user;
+      if (!newToken) {
+        throw new Error(res.data?.message || "Failed to log in");
+      }
       setToken(newToken);
       setUser(newUser);
       localStorage.setItem("fixitnow_token", newToken);
       localStorage.setItem("fixitnow_user", JSON.stringify(newUser));
       return true;
-    } catch {
-      return false;
+    } catch (err: any) {
+      throw err;
     }
   }, []);
 
@@ -73,14 +78,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(async (data: { email: string; password: string; name: string; phone?: string; location?: string; role?: string }) => {
     try {
       const res = await api.post("/auth/register", data);
-      const { token: newToken, user: newUser } = res.data;
+      const payload = res.data?.data || res.data;
+      const newToken = payload?.token;
+      const newUser = payload?.user;
+      if (!newToken) {
+        throw new Error(res.data?.message || "Failed to register");
+      }
       setToken(newToken);
       setUser(newUser);
       localStorage.setItem("fixitnow_token", newToken);
       localStorage.setItem("fixitnow_user", JSON.stringify(newUser));
       return true;
-    } catch {
-      return false;
+    } catch (err: any) {
+      throw err;
     }
   }, []);
 
