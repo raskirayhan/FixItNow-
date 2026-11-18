@@ -22,7 +22,7 @@
 | Item | URL / Details |
 | --- | --- |
 | **Frontend GitHub Repo** | [https://github.com/raskirayhan/FixItNow-](https://github.com/raskirayhan/FixItNow-) |
-| **Live Frontend URL (Vercel)** | [https://fixitnow-frontend.vercel.app](https://fixitnow-frontend.vercel.app) |
+| **Live Frontend URL (Vercel)** | [https://fix-it-now-taupe.vercel.app](https://fix-it-now-taupe.vercel.app) |
 | **Live Backend API (Render)** | [https://fixitnow-9f1w.onrender.com](https://fixitnow-9f1w.onrender.com) |
 | **API Health Endpoint** | [https://fixitnow-9f1w.onrender.com/api/health](https://fixitnow-9f1w.onrender.com/api/health) |
 | **Swagger API Docs** | [https://fixitnow-9f1w.onrender.com/api/docs](https://fixitnow-9f1w.onrender.com/api/docs) |

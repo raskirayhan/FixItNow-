@@ -14,7 +14,7 @@ A responsive, high-performance home-services marketplace frontend built with **R
 
 FixItNow connects homeowners with verified local technicians for plumbing, electrical, cleaning, carpentry, and home maintenance. The frontend offers role-adaptive layouts, real-time booking updates, full CRUD workflows, secure Stripe payment checkout, and comprehensive error handling.
 
-- **Live Frontend URL:** [https://fixitnow-frontend.vercel.app](https://fixitnow-frontend.vercel.app)
+- **Live Frontend URL:** [https://fix-it-now-taupe.vercel.app](https://fix-it-now-taupe.vercel.app)
 - **Backend API URL:** [https://fixitnow-9f1w.onrender.com](https://fixitnow-9f1w.onrender.com)
 - **API Documentation Mapping:** [`API_INTEGRATION.md`](../API_INTEGRATION.md)
 
