@@ -48,6 +48,18 @@ async function main() {
     },
   });
 
+  const fixitAdmin = await prisma.user.upsert({
+    where: { email: "admin@fixitnow.com" },
+    update: { password: adminPassword },
+    create: {
+      email: "admin@fixitnow.com",
+      password: adminPassword,
+      name: "FixItNow Administrator",
+      role: "ADMIN",
+      status: "ACTIVE",
+    },
+  });
+
   // --- Customers ---
   const customerData = [
     { email: "customer1@test.com", name: "Alice Johnson", phone: "+1-555-0101", location: "123 Main St, Springfield" },
@@ -131,7 +143,7 @@ async function main() {
   console.log("  Created 3 customer profiles");
 
   // --- Wallets ---
-  const allUsers = [admin, ...customers, ...technicians];
+  const allUsers = [admin, fixitAdmin, ...customers, ...technicians];
   for (const u of allUsers) {
     await prisma.wallet.upsert({
       where: { userId: u.id },
