@@ -22,10 +22,10 @@
 | Item | URL / Details |
 | --- | --- |
 | **Frontend GitHub Repo** | [https://github.com/raskirayhan/FixItNow-](https://github.com/raskirayhan/FixItNow-) |
-| **Live Frontend URL (Vercel)** | [https://fixitnow-frontend.vercel.app](https://fixitnow-frontend.vercel.app) *(or your Vercel deployment link)* |
-| **Live Backend API (Render)** | [https://fixitnow-backend.onrender.com](https://fixitnow-backend.onrender.com) |
-| **API Health Endpoint** | [https://fixitnow-backend.onrender.com/api/health](https://fixitnow-backend.onrender.com/api/health) |
-| **Swagger API Docs** | [https://fixitnow-backend.onrender.com/api/docs](https://fixitnow-backend.onrender.com/api/docs) |
+| **Live Frontend URL (Vercel)** | [https://fixitnow-frontend.vercel.app](https://fixitnow-frontend.vercel.app) |
+| **Live Backend API (Render)** | [https://fixitnow-9f1w.onrender.com](https://fixitnow-9f1w.onrender.com) |
+| **API Health Endpoint** | [https://fixitnow-9f1w.onrender.com/api/health](https://fixitnow-9f1w.onrender.com/api/health) |
+| **Swagger API Docs** | [https://fixitnow-9f1w.onrender.com/api/docs](https://fixitnow-9f1w.onrender.com/api/docs) |
 | **API Integration Mapping** | [`API_INTEGRATION.md`](API_INTEGRATION.md) |
 | **Walkthrough Video (7-10 min)** | `https://drive.google.com/file/d/your-demo-video/view` *(or Loom link)* |
 
