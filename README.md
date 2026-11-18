@@ -197,6 +197,10 @@ For comprehensive component-to-endpoint mappings, see [`API_INTEGRATION.md`](API
 | **Auth** | `POST` | `/api/auth/register` | Register customer or technician | Public |
 | **Auth** | `POST` | `/api/auth/login` | Authenticate & retrieve JWT | Public |
 | **Auth** | `GET` | `/api/auth/me` | Fetch active user session | Bearer Token |
+| **Auth** | POST | /api/auth/send-otp | Send Courier-grade Email OTP code | Public |
+| **Auth** | POST | /api/auth/verify-otp | Verify 6-digit OTP code | Public |
+| **Auth** | POST | /api/auth/login-with-otp | Passwordless login via verified OTP | Public |
+| **Auth** | POST | /api/auth/reset-password | Reset password using OTP code | Public |
 | **Profile** | `GET` | `/api/profile/me` | Get current user profile | Bearer Token |
 | **Profile** | `PUT` | `/api/profile/me` | Update name, phone, bio, location | Bearer Token |
 | **Profile** | `PUT` | `/api/profile/technician` | Update technician rate, skills | Technician |
