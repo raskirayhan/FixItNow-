@@ -64,13 +64,13 @@ export default function Login() {
   });
 
   const handleRoleRedirect = (role?: string) => {
-    if (role === "ADMIN") {
-      navigate("/admin");
-    } else if (role === "TECHNICIAN") {
-      navigate("/technician");
-    } else {
-      navigate("/customer");
-    }
+    const target = role === "ADMIN" ? "/admin" : role === "TECHNICIAN" ? "/technician" : "/customer";
+    navigate(target, { replace: true });
+    setTimeout(() => {
+      if (window.location.pathname === "/login") {
+        window.location.href = target;
+      }
+    }, 150);
   };
 
   const onSubmit = async (data: LoginForm) => {

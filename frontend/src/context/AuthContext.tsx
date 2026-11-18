@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         token,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user || !!token,
         loading,
         login,
         loginWithOtp,
