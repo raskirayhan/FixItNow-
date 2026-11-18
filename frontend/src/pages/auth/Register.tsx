@@ -132,7 +132,15 @@ export default function Register() {
         toastError("Registration Failed", "Could not create account. Please try again.");
       }
     } catch (err: any) {
-      toastError("Registration Failed", err?.response?.data?.message || "Could not create account. Please try again.");
+      let msg = err?.response?.data?.message;
+      if (!msg) {
+        if (err.message === "Network Error" || err.code === "ECONNABORTED" || err.code === "ERR_NETWORK") {
+          msg = "Network connection failed. The backend server may be warming up (Render cold start) or offline. Please wait 15 seconds and try again.";
+        } else {
+          msg = err.message || "Could not create account. Please try again.";
+        }
+      }
+      toastError("Registration Failed", msg);
     } finally {
       setIsSubmitting(false);
     }

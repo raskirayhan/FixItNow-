@@ -1,22 +1,18 @@
 import app from "./app";
-import { execSync } from "child_process";
+import { exec } from "child_process";
 
 const PORT = process.env.PORT || 5000;
 
-try {
-  console.log("Pushing Prisma schema to database...");
-  execSync("npx prisma db push --accept-data-loss", { stdio: "inherit" });
-  console.log("Prisma schema pushed successfully.");
-  try {
-    execSync("npx tsx prisma/seed.ts", { stdio: "inherit" });
-    console.log("Database seeded successfully.");
-  } catch (seedErr) {
-    console.log("Seeding skipped or completed with warnings.");
-  }
-} catch (dbErr) {
-  console.error("Failed to push Prisma schema:", dbErr);
-}
-
+// Start listening immediately so health checks and requests respond instantly
 app.listen(PORT, () => {
   console.log(`FixItNow API server running on port ${PORT}`);
+  
+  // Non-blocking background database sync
+  exec("npx prisma db push --accept-data-loss", (err) => {
+    if (err) {
+      console.warn("Background Prisma schema sync notice:", err.message);
+    } else {
+      console.log("Database schema synchronized successfully in background.");
+    }
+  });
 });

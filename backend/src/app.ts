@@ -13,42 +13,33 @@ dotenv.config();
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false,
+  })
+);
 app.use(morgan("combined"));
 app.use(cookieParser());
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 1000,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => req.method === "OPTIONS" || req.path === "/api/health",
   })
 );
-
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
-  .split(",")
-  .map((o) => {
-    const origin = o.trim();
-    if (origin && !origin.startsWith("http")) {
-      return `https://${origin}`;
-    }
-    return origin;
-  });
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else if (/\.vercel\.app$/.test(origin) || /\.netlify\.app$/.test(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: true,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "stripe-signature"],
   })
 );
+app.options("*", cors());
 
 app.use((req, res, next) => {
   if (req.originalUrl === "/api/payments/webhook") {

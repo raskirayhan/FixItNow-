@@ -85,10 +85,15 @@ export default function Login() {
         toastError("Login Failed", "Invalid credentials. Please try again.");
       }
     } catch (err: any) {
-      toastError(
-        "Login Failed",
-        err?.response?.data?.message || "Invalid credentials. Please check your email and password."
-      );
+      let msg = err?.response?.data?.message;
+      if (!msg) {
+        if (err.message === "Network Error" || err.code === "ECONNABORTED" || err.code === "ERR_NETWORK") {
+          msg = "Network connection failed. The backend server may be warming up (Render cold start) or offline. Please wait 15 seconds and try again.";
+        } else {
+          msg = err.message || "Invalid credentials. Please check your email and password.";
+        }
+      }
+      toastError("Login Failed", msg);
     } finally {
       setIsSubmitting(false);
     }
