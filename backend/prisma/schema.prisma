@@ -243,3 +243,17 @@ model Notification {
   @@index([userId, read])
   @@map("notifications")
 }
+
+model Otp {
+  id        String   @id @default(uuid())
+  email     String   @db.VarChar(255)
+  code      String   @db.VarChar(10)
+  purpose   String   @default("RESET_PASSWORD") @db.VarChar(50)
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([email, code])
+  @@map("otps")
+}

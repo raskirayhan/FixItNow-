@@ -9,8 +9,12 @@ This document maps all frontend components, pages, and hooks to their correspond
 | Frontend Component / Page | Custom Hook | Backend Endpoint | Method | Auth Required | Description |
 | --- | --- | --- | --- | --- | --- |
 | `src/pages/auth/Login.tsx` | `useLogin()` | `/api/auth/login` | `POST` | Public | Authenticates user with email & password, stores JWT token. |
-| `src/pages/auth/Register.tsx` | `useRegister()` | `/api/auth/register` | `POST` | Public | Registers a new Customer or Technician account. |
+| `src/pages/auth/Login.tsx` | `useLoginWithOtp()` | `/api/auth/login-with-otp` | `POST` | Public | Instant Courier fast login via 6-digit OTP. |
+| `src/pages/auth/Register.tsx` | `useRegister()` | `/api/auth/register` | `POST` | Public | Registers a new Customer or Technician account with automatic starter wallet. |
 | `src/context/AuthContext.tsx` | `useMe()` | `/api/auth/me` | `GET` | Bearer Token | Fetches currently logged-in user details and role. |
+| `src/pages/auth/ForgotPassword.tsx` | `useSendOtp()` | `/api/auth/send-otp` | `POST` | Public | Dispatches 6-digit Courier OTP to user email. |
+| `src/pages/auth/OtpVerification.tsx` | `useVerifyOtp()` | `/api/auth/verify-otp` | `POST` | Public | Validates 6-digit Courier OTP code against backend. |
+| `src/pages/auth/ResetPassword.tsx` | `useResetPassword()` | `/api/auth/reset-password` | `POST` | Public | Resets user password using verified OTP code. |
 
 ---
 

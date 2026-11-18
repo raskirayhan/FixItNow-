@@ -11,6 +11,26 @@ export const useRegister = () => useMutation({
     api.post("/auth/register", data).then(r => r.data),
 });
 
+export const useSendOtp = () => useMutation({
+  mutationFn: (data: { email: string; purpose?: string }) =>
+    api.post("/auth/send-otp", data).then(r => r.data),
+});
+
+export const useVerifyOtp = () => useMutation({
+  mutationFn: (data: { email: string; otp: string }) =>
+    api.post("/auth/verify-otp", data).then(r => r.data),
+});
+
+export const useResetPassword = () => useMutation({
+  mutationFn: (data: { email: string; otp: string; newPassword: string }) =>
+    api.post("/auth/reset-password", data).then(r => r.data),
+});
+
+export const useLoginWithOtp = () => useMutation({
+  mutationFn: (data: { email: string; otp: string }) =>
+    api.post("/auth/login-with-otp", data).then(r => r.data),
+});
+
 export const useMe = () => useQuery({
   queryKey: ["me"],
   queryFn: () => api.get("/auth/me").then(r => r.data),

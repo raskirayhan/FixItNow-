@@ -1,8 +1,23 @@
 import { Router } from "express";
-import { register, login, getMe } from "../controllers/authController";
+import {
+  register,
+  login,
+  getMe,
+  sendOtp,
+  verifyOtp,
+  resetPassword,
+  loginWithOtp,
+} from "../controllers/authController";
 import { authenticateToken } from "../middlewares/auth";
 import validate from "../middlewares/validate";
-import { registerSchema, loginSchema } from "../schemas/validation";
+import {
+  registerSchema,
+  loginSchema,
+  sendOtpSchema,
+  verifyOtpSchema,
+  resetPasswordSchema,
+  loginWithOtpSchema,
+} from "../schemas/validation";
 
 const router = Router();
 
@@ -126,5 +141,42 @@ router.post("/login", validate(loginSchema), login);
  *         description: Unauthorized
  */
 router.get("/me", authenticateToken, getMe);
+
+/**
+ * @swagger
+ * /auth/send-otp:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Dispatch a 6-digit Courier OTP to email
+ */
+router.post("/send-otp", validate(sendOtpSchema), sendOtp);
+router.post("/forgot-password", validate(sendOtpSchema), sendOtp);
+
+/**
+ * @swagger
+ * /auth/verify-otp:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Verify 6-digit Courier OTP
+ */
+router.post("/verify-otp", validate(verifyOtpSchema), verifyOtp);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Reset password using verified OTP
+ */
+router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
+
+/**
+ * @swagger
+ * /auth/login-with-otp:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Instant Courier fast login via OTP
+ */
+router.post("/login-with-otp", validate(loginWithOtpSchema), loginWithOtp);
 
 export default router;

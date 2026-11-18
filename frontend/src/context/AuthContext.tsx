@@ -7,9 +7,10 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<any>;
+  loginWithOtp: (email: string, otp: string) => Promise<any>;
   logout: () => void;
-  register: (data: { email: string; password: string; name: string; phone?: string; location?: string; role?: string }) => Promise<boolean>;
+  register: (data: { email: string; password: string; name: string; phone?: string; location?: string; role?: string }) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -19,7 +20,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem("fixitnow_user");
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Handle nested data edge-case
+        return parsed?.data ? parsed.data : parsed;
       } catch {
         return null;
       }
@@ -33,8 +36,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (token) {
       api.get("/auth/me")
         .then((res) => {
-          setUser(res.data.user ?? res.data);
-          localStorage.setItem("fixitnow_user", JSON.stringify(res.data.user ?? res.data));
+          const userData = res.data?.data || res.data?.user || res.data;
+          setUser(userData);
+          localStorage.setItem("fixitnow_user", JSON.stringify(userData));
         })
         .catch(() => {
           setUser(null);
@@ -61,7 +65,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(newUser);
       localStorage.setItem("fixitnow_token", newToken);
       localStorage.setItem("fixitnow_user", JSON.stringify(newUser));
-      return true;
+      return newUser || true;
+    } catch (err: any) {
+      throw err;
+    }
+  }, []);
+
+  const loginWithOtp = useCallback(async (email: string, otp: string) => {
+    try {
+      const res = await api.post("/auth/login-with-otp", { email, otp });
+      const payload = res.data?.data || res.data;
+      const newToken = payload?.token;
+      const newUser = payload?.user;
+      if (!newToken) {
+        throw new Error(res.data?.message || "Failed to log in with OTP");
+      }
+      setToken(newToken);
+      setUser(newUser);
+      localStorage.setItem("fixitnow_token", newToken);
+      localStorage.setItem("fixitnow_user", JSON.stringify(newUser));
+      return newUser || true;
     } catch (err: any) {
       throw err;
     }
@@ -88,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(newUser);
       localStorage.setItem("fixitnow_token", newToken);
       localStorage.setItem("fixitnow_user", JSON.stringify(newUser));
-      return true;
+      return newUser || true;
     } catch (err: any) {
       throw err;
     }
@@ -102,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         loading,
         login,
+        loginWithOtp,
         logout,
         register,
       }}

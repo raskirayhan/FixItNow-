@@ -14,6 +14,27 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const sendOtpSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  purpose: z.string().optional(),
+});
+
+export const verifyOtpSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  otp: z.string().min(6, "OTP must be 6 digits").max(6, "OTP must be 6 digits"),
+});
+
+export const resetPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  otp: z.string().min(6, "OTP must be 6 digits").max(6, "OTP must be 6 digits"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const loginWithOtpSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  otp: z.string().min(6, "OTP must be 6 digits").max(6, "OTP must be 6 digits"),
+});
+
 export const createServiceSchema = z.object({
   categoryId: z.string().uuid("Invalid category ID"),
   title: z.string().min(1, "Title is required"),

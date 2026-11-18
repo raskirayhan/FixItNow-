@@ -4,12 +4,14 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Key, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, CheckCircle, Wrench } from "lucide-react";
+import { Key, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, CheckCircle, Wrench, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useThemeContext } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast";
+import { useResetPassword } from "@/hooks/useApi";
 
 const resetSchema = z
   .object({
@@ -46,10 +48,15 @@ function getPasswordStrength(password: string): { score: number; label: string; 
 export default function ResetPassword() {
   const { isDark } = useThemeContext();
   const navigate = useNavigate();
+  const { success: toastSuccess, error: toastError } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const resetPasswordMutation = useResetPassword();
+
+  const email = sessionStorage.getItem("fixitnow_otp_email") || "";
+  const otp = sessionStorage.getItem("fixitnow_verified_otp") || sessionStorage.getItem("fixitnow_demo_otp") || "";
 
   const {
     register,
@@ -63,11 +70,32 @@ export default function ResetPassword() {
   const watchedPassword = watch("password") || "";
   const passwordStrength = getPasswordStrength(watchedPassword);
 
-  const onSubmit = async (_data: ResetForm) => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    setIsSuccess(true);
+  const onSubmit = async (data: ResetForm) => {
+    if (!email || !otp) {
+      toastError("Session Expired", "Please start from the Forgot Password page to verify your OTP first.");
+      navigate("/forgot-password");
+      return;
+    }
+
+    try {
+      await resetPasswordMutation.mutateAsync({
+        email,
+        otp,
+        newPassword: data.password,
+      });
+
+      sessionStorage.removeItem("fixitnow_otp_email");
+      sessionStorage.removeItem("fixitnow_verified_otp");
+      sessionStorage.removeItem("fixitnow_demo_otp");
+
+      toastSuccess("Password Updated", "Your password has been reset successfully. You can now login.");
+      setIsSuccess(true);
+    } catch (err: any) {
+      toastError(
+        "Reset Failed",
+        err?.response?.data?.message || "Failed to reset password. Please check your OTP or request a new one."
+      );
+    }
   };
 
   return (
@@ -118,9 +146,17 @@ export default function ResetPassword() {
                   Reset Password
                 </h1>
                 <p className={cn("mt-2 text-sm", isDark ? "text-slate-400" : "text-slate-500")}>
-                  Create a new strong password for your account.
+                  Create a new secure password for <strong>{email || "your account"}</strong>.
                 </p>
               </div>
+
+              {/* Verified badge */}
+              {otp && (
+                <div className="flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <span>Courier Security OTP Verified</span>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="relative">
@@ -188,15 +224,15 @@ export default function ResetPassword() {
                   </button>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-                  {isLoading ? (
+                <Button type="submit" className="w-full" size="lg" disabled={resetPasswordMutation.isPending}>
+                  {resetPasswordMutation.isPending ? (
                     <div className="flex items-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      Resetting...
+                      Updating Password...
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      Reset Password
+                      Save New Password
                       <ArrowRight className="h-4 w-4" />
                     </div>
                   )}
@@ -232,21 +268,19 @@ export default function ResetPassword() {
                 <CheckCircle className="h-8 w-8 text-emerald-600" />
               </motion.div>
               <h2 className={cn("text-2xl font-bold", isDark ? "text-white" : "text-slate-900")}>
-                Password Reset!
+                Password Reset Complete!
               </h2>
               <p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-500")}>
-                Your password has been successfully reset.
+                Your account password has been updated securely.
               </p>
               <Button
                 type="button"
-                className="mt-4"
+                className="mt-4 gap-2"
                 size="lg"
                 onClick={() => navigate("/login")}
               >
-                <div className="flex items-center gap-2">
-                  Sign In
-                  <ArrowRight className="h-4 w-4" />
-                </div>
+                Sign In With New Password
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </motion.div>
           )}

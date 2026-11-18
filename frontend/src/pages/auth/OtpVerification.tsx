@@ -4,10 +4,12 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Shield, ArrowLeft, CheckCircle, Wrench } from "lucide-react";
+import { Shield, ArrowLeft, CheckCircle, Wrench, PackageCheck, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useThemeContext } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast";
+import { useVerifyOtp, useSendOtp } from "@/hooks/useApi";
 
 const otpSchema = z.object({
   digits: z
@@ -20,11 +22,16 @@ type OtpForm = z.infer<typeof otpSchema>;
 export default function OtpVerification() {
   const { isDark } = useThemeContext();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const { success: toastSuccess, error: toastError } = useToast();
   const [isSuccess, setIsSuccess] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [email, setEmail] = useState(() => sessionStorage.getItem("fixitnow_otp_email") || "you@example.com");
+  const [cachedOtp, setCachedOtp] = useState<string | null>(() => sessionStorage.getItem("fixitnow_demo_otp"));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const verifyOtpMutation = useVerifyOtp();
+  const sendOtpMutation = useSendOtp();
 
   const {
     setValue,
@@ -89,18 +96,44 @@ export default function OtpVerification() {
     [digits, setValue]
   );
 
-  const handleVerify = async () => {
-    if (digits.some((d) => !d)) return;
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    setIsSuccess(true);
-    setTimeout(() => navigate("/reset-password"), 2000);
+  const fillCourierOtp = () => {
+    if (!cachedOtp || cachedOtp.length !== 6) return;
+    const newDigits = cachedOtp.split("");
+    setValue("digits", newDigits, { shouldValidate: true });
   };
 
-  const handleResend = () => {
-    setCountdown(60);
-    setCanResend(false);
+  const handleVerify = async () => {
+    const otpCode = digits.join("");
+    if (otpCode.length !== 6) return;
+
+    try {
+      await verifyOtpMutation.mutateAsync({ email, otp: otpCode });
+      sessionStorage.setItem("fixitnow_verified_otp", otpCode);
+      toastSuccess("OTP Verified", "Your verification code was accepted successfully.");
+      setIsSuccess(true);
+      setTimeout(() => navigate("/reset-password"), 1500);
+    } catch (err: any) {
+      toastError(
+        "Verification Failed",
+        err?.response?.data?.message || "Invalid or expired OTP code. Please check and try again."
+      );
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      const res = await sendOtpMutation.mutateAsync({ email, purpose: "Resend Code" });
+      const responseData = res?.data || res;
+      if (responseData?.demoOtp) {
+        sessionStorage.setItem("fixitnow_demo_otp", responseData.demoOtp);
+        setCachedOtp(responseData.demoOtp);
+      }
+      setCountdown(60);
+      setCanResend(false);
+      toastSuccess("OTP Resent", "A new Courier Service verification code has been dispatched.");
+    } catch (err: any) {
+      toastError("Resend Failed", err?.response?.data?.message || "Could not resend OTP.");
+    }
   };
 
   return (
@@ -148,12 +181,38 @@ export default function OtpVerification() {
                     isDark ? "text-white" : "text-slate-900"
                   )}
                 >
-                  Verify Your Email
+                  Verify Courier OTP
                 </h1>
                 <p className={cn("mt-2 text-sm", isDark ? "text-slate-400" : "text-slate-500")}>
-                  We&apos;ve sent a 6-digit code to your email address.
+                  Enter the 6-digit security code sent to:
                 </p>
+                <p className="font-semibold text-primary-600 text-sm mt-0.5">{email}</p>
               </div>
+
+              {/* Courier Hint Box */}
+              {cachedOtp && (
+                <div
+                  className={cn(
+                    "flex items-center justify-between rounded-xl border p-3 text-xs",
+                    isDark ? "border-primary-900/40 bg-primary-950/30 text-primary-300" : "border-primary-200 bg-primary-50/70 text-primary-700"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <PackageCheck className="h-4 w-4 shrink-0" />
+                    <span>Courier OTP Dispatched: <strong>{cachedOtp}</strong></span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs font-semibold gap-1 text-primary-700 hover:text-primary-800 hover:bg-primary-100"
+                    onClick={fillCourierOtp}
+                  >
+                    <Zap className="h-3 w-3" />
+                    Auto-Fill
+                  </Button>
+                </div>
+              )}
 
               <div className="flex justify-center gap-2">
                 {digits.map((digit, index) => (
@@ -192,15 +251,15 @@ export default function OtpVerification() {
                 className="w-full"
                 size="lg"
                 onClick={handleVerify}
-                disabled={isLoading || digits.some((d) => !d)}
+                disabled={verifyOtpMutation.isPending || digits.some((d) => !d)}
               >
-                {isLoading ? (
+                {verifyOtpMutation.isPending ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    Verifying...
+                    Verifying with Courier API...
                   </div>
                 ) : (
-                  "Verify"
+                  "Verify & Continue"
                 )}
               </Button>
 
@@ -209,14 +268,15 @@ export default function OtpVerification() {
                   <button
                     type="button"
                     onClick={handleResend}
-                    className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                    disabled={sendOtpMutation.isPending}
+                    className="text-sm font-semibold text-primary-600 hover:text-primary-700"
                   >
-                    Resend Code
+                    {sendOtpMutation.isPending ? "Sending..." : "Resend Courier Code"}
                   </button>
                 ) : (
                   <p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-500")}>
                     Resend code in{" "}
-                    <span className="font-medium text-primary-600">{countdown}s</span>
+                    <span className="font-semibold text-primary-600">{countdown}s</span>
                   </p>
                 )}
               </div>
@@ -230,7 +290,7 @@ export default function OtpVerification() {
                   )}
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  Change email
+                  Change email address
                 </Link>
               </div>
             </div>
@@ -250,10 +310,10 @@ export default function OtpVerification() {
                 <CheckCircle className="h-8 w-8 text-emerald-600" />
               </motion.div>
               <h2 className={cn("text-2xl font-bold", isDark ? "text-white" : "text-slate-900")}>
-                Verified!
+                OTP Verified!
               </h2>
               <p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-500")}>
-                Email verified successfully. Redirecting...
+                Authentication confirmed. Redirecting to set new password...
               </p>
             </motion.div>
           )}

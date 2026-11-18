@@ -42,7 +42,7 @@ const registerSchema = z
       .regex(/[^a-zA-Z0-9]/, "Password must contain at least one special character"),
     confirmPassword: z.string(),
     location: z.string().optional(),
-    agreeToTerms: z.literal(true),
+    agreeToTerms: z.boolean().refine((val) => val === true, "You must agree to the Terms of Service and Privacy Policy"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -75,7 +75,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register: registerUser } = useAuth();
-  const { error: toastError } = useToast();
+  const { success: toastSuccess, error: toastError } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -87,7 +87,7 @@ export default function Register() {
     formState: { errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { role: undefined },
+    defaultValues: { role: undefined, agreeToTerms: false },
   });
 
   const watchedPassword = watch("password") || "";
@@ -113,16 +113,21 @@ export default function Register() {
   const onSubmit = async (data: RegisterForm) => {
     setIsSubmitting(true);
     try {
-      const success = await registerUser({
+      const result = await registerUser({
         email: data.email,
         password: data.password,
         name: data.name,
-        phone: data.phone,
-        location: data.location,
+        phone: data.phone || undefined,
+        location: data.location || undefined,
         role: data.role,
       });
-      if (success) {
-        navigate("/");
+      if (result) {
+        toastSuccess("Registration Successful", "Welcome to FixItNow! Your account has been created.");
+        if (data.role === "TECHNICIAN") {
+          navigate("/technician");
+        } else {
+          navigate("/customer");
+        }
       } else {
         toastError("Registration Failed", "Could not create account. Please try again.");
       }
